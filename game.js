@@ -1,0 +1,85 @@
+(() => {
+  "use strict";
+  const $=s=>document.querySelector(s), panel=$("#panel"), body=$("#panelBody");
+  const api="https://script.google.com/macros/s/AKfycbxhI2RdwlwT3x5ssO3HAovSANxmKE5Mb_zJmn74uFy93vWj0Zjac9ZKgYx6lpuHWm6IYA/exec";
+  const prefix="소라빛해변.1.", id=()=>crypto.randomUUID?.()||Date.now().toString(36)+Math.random().toString(36).slice(2);
+  const read=(k,d)=>{try{return JSON.parse(localStorage.getItem(prefix+k))??d}catch{return d}};
+  const write=(k,v)=>{try{localStorage.setItem(prefix+k,JSON.stringify(v))}catch{storageFailed=true}};
+  let storageFailed=false, auth=read("계정",null), prefs=read("설정",{device:"자동",sound:false}), saveKey=()=>auth?"회원."+auth.name:"게스트";
+  let local=read(saveKey(),null),s={...newGame(),...local?.state},rev=local?.rev||0,dirty=!!local?.dirty;
+  let world,phase="idle",power=0,phaseTime=0,waitTime=0,view="",mode="login",status=auth?"연결 확인 중":"이 기기에 저장",ready=false,busy=false,syncing=false,pending=local?.pending||null,modalError="",pageVisit=id(),timeFraction=0,clock=0;
+  let toastTimer,snackTimer,ctx,forceCountdown=0;
+  const safe=t=>String(t).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  function autoDevice(){try{const ua=navigator.userAgent||"";if(/android|iphone|ipad|ipod|mobile/i.test(ua)||(navigator.maxTouchPoints>1&&/Macintosh/i.test(ua)))return "모바일";if(navigator.userAgentData?.mobile===true)return "모바일";if(/windows nt|macintosh|x11|cros/i.test(ua)&&matchMedia("(pointer:fine)").matches)return "PC";return "모바일"}catch{return "모바일"}}
+  const device=()=>prefs.device==="자동"?autoDevice():prefs.device;
+  function deviceUI(){document.body.classList.toggle("mobile",device()==="모바일");$("#deviceText").textContent=device()+"로 접속했어요"}
+  function persist(modified=false){if(modified)dirty=true;if(world)s.pos=world.position();write(saveKey(),{state:s,rev,dirty,pending})}
+  function hud(){$("#money").textContent=s.money.toLocaleString("ko");$("#capacity").textContent=s.bag.length+" / "+capacity(s);$("#rodName").textContent=RODS[s.rod-1];$("#rodLevel").textContent=s.rod+"단계";$("#account span").textContent=auth?.name||"게스트";$("#sound").innerHTML=icon(prefs.sound?"sound":"mute");$("#sound").setAttribute("aria-label",prefs.sound?"소리 끄기":"소리 켜기")}
+  function notify(t,ms=3000){clearTimeout(toastTimer);$("#notice").hidden=!t;$("#notice").textContent=t;if(t&&ms)toastTimer=setTimeout(()=>$("#notice").hidden=true,ms)}
+  function chime(freq=550){if(!prefs.sound)return;try{ctx??=new (window.AudioContext||window.webkitAudioContext)();ctx.resume().catch(()=>{});const o=ctx.createOscillator(),g=ctx.createGain();o.type="sine";o.frequency.setValueAtTime(freq,ctx.currentTime);o.frequency.exponentialRampToValueAtTime(freq*1.24,ctx.currentTime+.11);g.gain.setValueAtTime(.055,ctx.currentTime);g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.24);o.connect(g);g.connect(ctx.destination);o.start();o.stop(ctx.currentTime+.25)}catch{}}
+  function state(next){phase=next;phaseTime=0;world?.setPhase(next,power);$("#meter").hidden=next!=="charge";$("#cast b").textContent=({idle:"낚싯줄 던지기",charge:"놓아서 던지기",wait:"낚싯줄 회수",bite:"지금 낚아채기!"})[next];$("#hint").textContent=({idle:"꾹 눌렀다가 원하는 힘에서 놓으세요",charge:"게이지가 오르내려요 · 놓으면 던져요",wait:"찌가 흔들릴 때까지 기다리세요",bite:"물었어요! 버튼을 한 번 누르세요"})[next]}
+  function landCatch(){const c=catchOne(s,power);state("idle");let msg=c.name;
+    if(c.kind==="장비"){if(s.gear[c.name]){s.money+=20;msg+=" · 이미 가진 장비예요. 20코인을 받았어요"}else{s.gear[c.name]=1;msg+=" 획득! 상점에서 착용할 수 있어요"}}
+    else if(s.bag.length>=capacity(s)){msg="물고기통이 가득 차서 놓아줬어요"}else{s.bag.push(c.name);if(c.kind==="물고기"){s.seen[c.name]=(s.seen[c.name]||0)+1;s.caught++;msg=GRADES[c.grade]+" · "+c.name+" 낚았어요!"}else msg+=" · "+c.kind+"을 건졌어요"}
+    notify(msg,4200);chime(750);hud();persist(true);scheduleSave()}
+  function press(){if(panel.open||!world)return;if(phase==="bite"){landCatch();return}if(phase==="wait"){state("idle");notify("낚싯줄을 거뒀어요");return}if(phase!=="idle")return;
+    if(s.bag.length>=capacity(s)){notify("물고기통이 가득 찼어요. 어획물을 판매해 주세요.");return}if(!world.canCast()){notify("바닷가나 잔교 끝으로 이동해 주세요");return}notify("");power=0;state("charge");drawMeter();chime(385)}
+  function release(){if(phase!=="charge")return;waitTime=1.8+Math.random()*2.7;state("wait");notify(Math.round(3+power*14)+"m 던졌어요",1300);chime(480)}
+  function drawMeter(){const percent=Math.round(power*100);$("#powerText").textContent=percent+"%";$("#meter span").style.width=percent+"%"}
+  function frame(dt){if(document.hidden)return;const now=performance.now()/1000,active=clock?Math.min(1,now-clock):0;clock=now;
+    if(!panel.open){timeFraction+=active;if(timeFraction>=1){const n=Math.floor(timeFraction);s.seconds+=n;timeFraction-=n;dirty=true}phaseTime+=active;
+      if(phase==="charge"){const t=(phaseTime/.87)%2;power=1-Math.abs(1-t);drawMeter()}else if(phase==="wait"&&phaseTime>=waitTime){state("bite");chime(960);notify("입질! 지금 낚아채세요",0)}else if(phase==="bite"&&phaseTime>3.6+(s.equipped==="조개 방울"?(s.gear[s.equipped]||0)*.75:0)){state("idle");notify("물고기가 달아났어요")}}
+    if(forceCountdown>0)forceCountdown-=dt}
+  const row=(sym,title,sub,btn="")=>'<div class="row"><i class="tile">'+icon(sym)+'</i><span><strong>'+safe(title)+'</strong><small>'+safe(sub)+'</small></span>'+btn+'</div>';
+  const button=(text,action,disabled=false)=>'<button data-do="'+safe(action)+'" '+(disabled?"disabled":"")+'>'+safe(text)+'</button>';
+  const primary=(text,action)=>'<button class="action" data-do="'+action+'">'+safe(text)+'</button>';
+  const selected=(text,action,on)=>'<button class="choice '+(on?"selected":"")+'" data-do="'+safe(action)+'">'+safe(text)+'</button>';
+  function open(v){if(v==="beach"){if(panel.open)panel.close();return}if(!panel.open){state("idle");notify("");world?.lock(true);panel.showModal()}view=v;modalError="";$("#snack").hidden=true;render();panel.scrollTop=0}
+  function render(){const titles={bag:"내 물고기통",book:"물고기 도감",shop:"해변 상점",settings:"설정",device:"조작 기기",account:"진행 상황 저장",help:"낚시하는 법"};$("#panelTitle").textContent=titles[view]||"해변";let html="";
+    if(view==="bag"){const counts={};s.bag.forEach(n=>counts[n]=(counts[n]||0)+1);const sum=s.bag.reduce((a,n)=>a+sellValue(s,n),0);html='<p>보관 중 <b>'+s.bag.length+' / '+capacity(s)+'</b></p>'+Object.entries(counts).map(([n,v])=>row("fish",n+" × "+v,sellValue(s,n)?sellValue(s,n)+"코인씩":"쓰레기 · 판매할 때 함께 비워요")).join("");html+=s.bag.length?primary("모두 판매 · "+sum.toLocaleString()+"코인","sell"):'<p class="empty">물고기통이 비었어요. 첫 낚싯줄을 던져 보세요.</p>'}
+    if(view==="book"){html='<p>발견한 물고기 <b>'+Object.keys(s.seen).length+" / "+CATCHES.length+"</b></p>"+CATCHES.map(([n,g,val])=>row("fish",s.seen[n]?n:"미발견",GRADES[g]+" · "+(s.seen[n]?val+"코인 · "+s.seen[n]+"마리":(g+1)+"단계 낚싯대부터"))).join("")}
+    if(view==="shop"){html='<p>내 지갑 <b>'+s.money.toLocaleString()+'코인</b></p>';for(const kind of ["rod","bucket"]){const lv=s[kind],price=upgradeCost(lv,kind),isRod=kind==="rod";html+=row(isRod?"rod":"bucket",isRod?RODS[lv-1]:"물고기통 "+lv+"단계",lv>=6?"최고 단계":isRod?"다음 단계에서 "+GRADES[lv]+" 물고기 해금":"다음 단계 용량 "+(capacity(s)+2)+"칸",lv<6?button(price+"코인 강화","up:"+kind,s.money<price):"")}
+      for(const [name,item] of Object.entries(GEAR)){const lv=s.gear[name]||0,price=lv?upgradeCost(lv,"gear"):item.cost;html+=row("rod",name+(lv?" · "+lv+"단계":""),item.desc,lv?button(s.equipped===name?"해제":"착용","equip:"+name):item.cost?button(price+"코인 구매","buy:"+name,s.money<price):'<small>낚시 전용</small>');if(lv&&lv<5)html+='<div class="row"><span>장비 강화</span>'+button(price+"코인","gear:"+name,s.money<price)+'</div>'}}
+    if(view==="settings"){html=row("device","조작 기기",prefs.device+" · 현재 "+device(),button("바꾸기","open:device"))+row(prefs.sound?"sound":"mute","효과음",prefs.sound?"켜짐":"꺼짐",button(prefs.sound?"끄기":"켜기","sound"))+row("help","조작 방법","이동과 낚시",button("보기","open:help"))+row("user",auth?.name||"게스트",status,button("계정","open:account"))}
+    if(view==="device"){html='<p>조작에 사용할 기기를 선택하세요.</p><div class="choices">'+["자동","PC","모바일"].map(v=>selected(v,"device:"+v,prefs.device===v)).join("")+'</div><p>자동 감지 결과 · '+autoDevice()+'</p>'}
+    if(view==="help"){html=row("wave","물가로 이동",device()==="PC"?"방향키나 WASD로 걸어요. 바닥을 클릭해도 이동해요.":"왼쪽 조이스틱을 밀거나 바닥을 눌러 이동해요.")+row("rod","길게 눌러 던지기","잔교나 모래사장 물가에서 버튼을 꾹 눌러요. 힘 게이지가 원하는 지점에 오면 놓으세요.")+row("fish","입질에 맞춰 낚아채기","찌가 흔들리면 버튼을 한 번 눌러요. PC에서는 스페이스바도 사용할 수 있어요.")+row("bucket","판매와 강화","물고기통에서 어획물을 팔고 상점에서 낚싯대와 통을 강화하세요. 건진 장비도 착용할 수 있어요.")}
+    if(view==="account"){if(auth){html=row("user",auth.name,status)+row("fish","누적 어획량",s.caught+"마리")+row("device","플레이 기록",Math.floor(s.seconds/60)+"분 · 접속 "+s.visits+"회")+primary("지금 저장","sync")+primary("로그아웃","logout");if(status.includes("충돌"))html+=primary("시트의 진행 상황 불러오기","reload")}
+      else{html='<div class="choices">'+selected("로그인","mode:login",mode==="login")+selected("회원가입","mode:register",mode==="register")+'</div><p>'+(mode==="login"?"로그인하면 시트에 저장했던 게임을 이어서 플레이해요.":"현재 게스트의 어획물과 장비를 새 계정에 저장해요.")+'</p><form id="loginForm"><label class="field">아이디<input name="name" required minlength="2" maxlength="13" pattern="[가-힣]{2,13}" placeholder="한글 2~13자" autocomplete="username"></label><label class="field">게임용 PIN<input type="password" name="pin" required inputmode="numeric" maxlength="4" pattern="[0-9]{4}" placeholder="숫자 4자리" autocomplete="'+(mode==="login"?"current-password":"new-password")+'"></label><button class="action" '+(busy?"disabled":"")+'>'+(busy?"연결 중…":mode==="login"?"로그인":"회원가입하고 저장")+'</button></form>'}}
+    body.innerHTML=html+'<p id="feedback" role="status" style="margin-top:10px">'+safe(modalError||(storageFailed?"브라우저 저장 공간을 사용할 수 없어요.":""))+'</p>'}
+  function change(){hud();persist(true);scheduleSave();render();chime(570)}
+  async function action(a){const [key,arg]=a.split(":");if(key==="open")return open(arg);if(key==="mode"){mode=arg;modalError="";render();return}
+    if(key==="sell"){const n=s.bag.reduce((a,v)=>a+sellValue(s,v),0);s.money+=n;s.bag=[];modalError=n+"코인을 받았어요";return change()}
+    if(key==="up"&&["rod","bucket"].includes(arg)){const price=upgradeCost(s[arg],arg);if(s[arg]>=6||s.money<price)return;s.money-=price;s[arg]++;modalError="강화했어요";return change()}
+    if(key==="buy"&&GEAR[arg]?.cost&&!s.gear[arg]&&s.money>=GEAR[arg].cost){s.money-=GEAR[arg].cost;s.gear[arg]=1;return change()}
+    if(key==="gear"&&s.gear[arg]&&s.gear[arg]<5){const n=upgradeCost(s.gear[arg],"gear");if(s.money<n)return;s.money-=n;s.gear[arg]++;return change()}
+    if(key==="equip"&&s.gear[arg]){s.equipped=s.equipped===arg?"":arg;return change()}
+    if(key==="device"){prefs.device=arg;write("설정",prefs);deviceUI();panel.close();notify(arg+" 조작으로 설정했어요");return}
+    if(key==="sound"){prefs.sound=!prefs.sound;write("설정",prefs);hud();chime();if(panel.open)render();return}
+    if(key==="sync"){await resume(false);if(ready)await sync();if(panel.open&&view==="account")render()}
+    if(key==="reload"){await resume(true);if(panel.open)render()}
+    if(key==="logout"&&!busy&&!syncing){persist();auth=null;write("계정",null);const guest=read(saveKey(),null);s={...newGame(),...guest?.state};s.visits++;rev=0;pending=null;dirty=false;ready=false;world?.restore(s.pos);hud();status="이 기기에 저장";render()}}
+  async function request(command,args){const abort=new AbortController(),timer=setTimeout(()=>abort.abort(),16500);try{const res=await fetch(api,{method:"POST",body:JSON.stringify({command,...args}),signal:abort.signal,redirect:"follow",credentials:"omit"});const data=await res.json();if(!data.ok)throw Object.assign(new Error(data.message||"저장에 실패했어요"),{code:data.code});return data}catch(e){if(e.code)throw e;throw new Error("저장 서버에 연결할 수 없어요. 기기에 진행 상황을 보관했어요.")}finally{clearTimeout(timer)}}
+  async function authenticate(e){e.preventDefault();if(busy||auth)return;const f=new FormData(e.target),name=String(f.get("name")).normalize("NFC"),pin=String(f.get("pin"));if(!/^[가-힣]{2,13}$/.test(name)||!/^\d{4}$/.test(pin))return;busy=true;const submit=e.target.querySelector("button");submit.disabled=true;submit.textContent="연결 중…";persist();
+    try{const r=await request(mode==="login"?"로그인":"가입",{name,pin,state:s,device:device(),visit:pageVisit});const old=read("회원."+name,null);auth={name,token:r.token};write("계정",auth);s={...newGame(),...r.state};rev=r.rev;dirty=false;pending=null;ready=true;status="시트에 저장됨";
+      if(old?.dirty&&mode==="login"){s={...newGame(),...old.state,visits:r.state.visits};dirty=true;rev=old.rev;pending=old.pending||null;if(rev!==r.rev&&!pending){ready=false;status="저장 충돌 · 시트 기록 확인 필요"}}
+      world?.restore(s.pos);persist();hud();if(ready&&dirty)scheduleSave();modalError=mode==="register"?"회원가입했어요":"로그인했어요";render()}catch(err){modalError=err.message;$("#feedback").textContent=modalError;submit.disabled=false;submit.textContent=mode==="login"?"로그인":"회원가입하고 저장"}finally{busy=false}}
+  async function resume(reload){if(!auth||busy||syncing)return;busy=true;const who=auth;try{const r=await request("접속",{...who,visit:pageVisit,device:device()});if(auth!==who)return;if(reload||(!dirty&&!pending)){s={...newGame(),...r.state};rev=r.rev;dirty=false;pending=null;world?.restore(s.pos)}s.visits=r.state.visits;
+      if(rev!==r.rev&&!pending){ready=false;status="저장 충돌 · 시트 기록 확인 필요"}else{ready=true;status=dirty?"저장 대기":"시트에 저장됨"}persist();hud()}catch(e){ready=false;status=e.message}finally{busy=false}}
+  let saveTimer;function scheduleSave(){if(!auth)return;clearTimeout(saveTimer);saveTimer=setTimeout(sync,1200)}
+  async function sync(){if(!auth||!ready||busy||syncing||(!dirty&&!pending))return;syncing=true;const who=auth;persist();if(!pending){pending={state:JSON.parse(JSON.stringify(s)),rev,writeId:id()};persist()}
+    try{const r=await request("저장",{...who,...pending});if(who!==auth)return;dirty=JSON.stringify(s)!==JSON.stringify(pending.state);pending=null;rev=r.rev;status="시트에 저장됨";persist()}catch(e){status=e.code==="충돌"?"저장 충돌 · 시트 기록 확인 필요":e.message;if(e.code==="충돌"){ready=false;pending=null}persist()}finally{syncing=false;if(panel.open&&view==="account")render()}}
+  document.querySelectorAll("[data-icon]").forEach(el=>el.innerHTML=icon(el.dataset.icon));deviceUI();hud();
+  try{world=beachWorld($("#world"),frame);world.restore(s.pos)}catch(err){console.error(err);$("#hint").textContent="브라우저에서 WebGL을 켜고 다시 열어 주세요";$("#cast").disabled=true;notify("3D 화면을 열 수 없어요. 브라우저의 그래픽 가속 설정을 확인해 주세요.",0)}
+  document.addEventListener("click",e=>{const b=e.target.closest("[data-open],[data-do]");if(!b)return;if(b.dataset.open)open(b.dataset.open);else action(b.dataset.do)});
+  document.addEventListener("submit",e=>{if(e.target.id==="loginForm")authenticate(e)});$("#closePanel").onclick=()=>panel.close();panel.onclick=e=>{if(e.target===panel){const r=panel.getBoundingClientRect();if(e.clientX<r.left||e.clientY<r.top||e.clientX>r.right||e.clientY>r.bottom)panel.close()}};panel.onclose=()=>{view="";world?.lock(false)};
+  $("#sound").onclick=()=>action("sound");$("#dismiss").onclick=()=>$("#snack").hidden=true;snackTimer=setTimeout(()=>$("#snack").hidden=true,8500);
+  const cast=$("#cast");cast.onpointerdown=e=>{if(e.button!==0)return;e.preventDefault();cast.setPointerCapture(e.pointerId);press()};cast.onpointerup=release;cast.onpointercancel=()=>{if(phase==="charge")state("idle")};cast.oncontextmenu=e=>e.preventDefault();cast.onclick=e=>{if(e.detail===0&&phase==="idle"){press();if(phase==="charge"){power=.55;release()}}};
+  window.addEventListener("keydown",e=>{if(panel.open||!world||e.ctrlKey||e.metaKey||e.altKey)return;const k=e.key.toLowerCase();if(k===" "){e.preventDefault();if(!e.repeat)press()}else if(["w","a","s","d","arrowup","arrowdown","arrowleft","arrowright"].includes(k)){e.preventDefault();world.keys.add(k)}});
+  window.addEventListener("keyup",e=>{world?.keys.delete(e.key.toLowerCase());if(e.key===" "&&!panel.open){e.preventDefault();release()}});
+  const stick=$("#stick"),knob=stick.querySelector("span");let stickId=null;function slide(e){if(!world||stickId!==e.pointerId)return;const b=stick.getBoundingClientRect(),dx=(e.clientX-b.x-b.width/2)/(b.width*.38),dy=(e.clientY-b.y-b.height/2)/(b.height*.38),l=Math.max(1,Math.hypot(dx,dy));world.joy.x=dx/l;world.joy.y=dy/l;knob.style.transform="translate("+dx/l*55+"%,"+dy/l*55+"%)"}
+  function reset(){stickId=null;if(world){world.joy.x=world.joy.y=0;world.keys.clear()}knob.style.transform="";if(phase==="charge")state("idle")}
+  stick.onpointerdown=e=>{stickId=e.pointerId;stick.setPointerCapture(e.pointerId);slide(e)};stick.onpointermove=slide;stick.onlostpointercapture=reset;window.addEventListener("blur",reset);
+  document.addEventListener("visibilitychange",()=>{clock=0;if(document.hidden){reset();persist();sync()}});window.addEventListener("pagehide",()=>persist());
+  if(auth)resume(false).then(sync);else{s.visits++;persist(true)}
+  window.addEventListener("online",()=>{if(auth)resume(false).then(sync)});setInterval(()=>{if(document.hidden)return;persist();if(auth&&!ready&&!status.includes("충돌"))resume(false).then(sync);else sync()},15000);
+})();

@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#faf8f0">
+  <title>해변 낚시왕</title>
+  <link rel="stylesheet" href="game.css">
+</head>
+<body>
+<header>
+  <div class="brand"><span class="brand-mark" data-icon="float"></span><h1>해변 낚시왕</h1></div>
+  <nav aria-label="게임 메뉴">
+    <button class="nav-active" data-open="beach"><i data-icon="wave"></i>해변</button>
+    <button data-open="book"><i data-icon="book"></i>도감</button>
+    <button data-open="shop"><i data-icon="shop"></i>상점</button>
+  </nav>
+  <div class="head-end"><button id="account" data-open="account"><i data-icon="user"></i><span>게스트</span></button><button class="icon-btn" aria-label="설정" data-open="settings"><i data-icon="settings"></i></button></div>
+</header>
+<main>
+  <section id="scene" aria-label="소라빛 해변 낚시터">
+    <canvas id="world" aria-label="입체 해변과 낚시꾼"></canvas>
+    <div class="place"><div class="loc"><i data-icon="pin"></i>현재 낚시터</div><h2 id="location">소라빛 해변</h2><div class="weather"><i data-icon="sun"></i> 맑음 <b>·</b> 잔잔한 파도</div></div>
+    <div class="resources"><span><i data-icon="coin"></i><strong id="money">0</strong><small>코인</small></span><button data-open="bag"><i data-icon="bucket"></i><strong id="capacity">0 / 6</strong></button></div>
+    <div id="notice" role="status" hidden></div>
+    <div id="meter" hidden><label>던지는 힘 <b id="powerText">0%</b></label><div><span></span></div></div>
+    <div class="stick" id="stick" aria-label="이동 조이스틱"><b>⌃</b><b>‹</b><b>›</b><b>⌄</b><span></span></div>
+    <div class="scene-tools"><button class="icon-btn" id="sound" aria-label="소리 켜기"><i data-icon="mute"></i></button><button class="icon-btn" data-open="help" aria-label="조작 방법"><i data-icon="help"></i></button></div>
+    <div class="snack" id="snack" role="status"><i data-icon="device"></i><span id="deviceText"></span><button data-open="device">바꾸기</button><button id="dismiss" aria-label="알림 닫기">×</button></div>
+  </section>
+  <section class="dock" aria-label="낚시 조작">
+    <button class="rod" data-open="shop"><i class="tile" data-icon="rod"></i><span><small>착용 중인 낚싯대</small><b id="rodName">대나무 낚싯대</b></span><em id="rodLevel">1단계</em></button>
+    <div class="cast-wrap"><button id="cast"><i data-icon="rod"></i><b>낚싯줄 던지기</b><kbd>Space</kbd></button><small id="hint">꾹 눌렀다가 원하는 힘에서 놓으세요</small></div>
+    <button class="bag" data-open="bag"><i class="tile" data-icon="bucket"></i><span><small>오늘의 어획물</small><b>내 물고기통</b></span><i data-icon="chevron"></i></button>
+  </section>
+</main>
+<dialog id="panel"><div class="dialog-head"><h2 id="panelTitle"></h2><button class="icon-btn" id="closePanel" aria-label="닫기">×</button></div><div id="panelBody"></div></dialog>
+<script src="three.min.js"></script><script src="catalog.js"></script><script src="world.js"></script><script src="game.js"></script>
+</body></html>
