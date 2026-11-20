@@ -1,0 +1,108 @@
+/* Painted controls share a transparent atlas. Their hit areas remain independent of the artwork. */
+#account,#scene .wallet,#scene .gear,#scene .pack,#scene #cast,#scene .interact,#scene .stick,#scene .stick span{
+  padding:0;border:0;box-shadow:none;background-color:transparent;
+}
+#scene #cast,#scene .interact,#scene .stick,#scene .stick span,#scene .gear,#scene .pack{
+  background-image:url("assets/helm-controls.webp");background-size:300% 200%;background-repeat:no-repeat;
+  filter:drop-shadow(0 2px 2px #2d251b80);
+}
+#scene{--insetX:max(10px,env(safe-area-inset-left));--insetR:max(10px,env(safe-area-inset-right));--insetT:max(8px,env(safe-area-inset-top))}
+#scene .place,#account .float-mark,#scene .gear i,#scene .wallet i,#scene .pack i,#cast i,#scene .interact i,#scene .stick b{display:none}
+#account{
+  width:clamp(148px,25vw,218px);height:auto;aspect-ratio:2.46;display:block;position:relative;
+  background:transparent url("assets/skipper.webp") center/100% 100% no-repeat;border-radius:30%;
+  filter:drop-shadow(0 2px 2px #211f1580);color:#fff1ca;
+}
+.profile-name{position:absolute;inset:12% 17% 14% 39%;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.02;white-space:nowrap}
+.profile-name strong{font-family:"Malgun Gothic","Apple SD Gothic Neo",sans-serif;font-size:clamp(12px,1.5vw,17px);font-weight:950;text-shadow:0 2px 1px #23372b}
+.profile-name strong em{display:block;color:#ffcf59;font-size:1.34em;font-weight:1000;font-style:normal;letter-spacing:-.065em}
+.profile-name small{max-width:100%;overflow:hidden;text-overflow:ellipsis;font-size:9px;margin-top:2px;color:#fff3bd;line-height:1.2;text-shadow:0 1px 2px #193b38}
+.top-tools{gap:2px 4px;align-items:center}
+#scene .wallet,#shopWallet{
+  box-sizing:border-box;background:transparent url("assets/purse.webp") center/100% 100% no-repeat;color:#fff4c5;
+  text-shadow:0 2px 2px #183a39;font-weight:900;font-variant-numeric:tabular-nums;border:0;box-shadow:none;
+  min-width:88px;height:43px;justify-content:center;padding:8px 13px 0 32px;font-size:14px;
+}
+#scene .gear{width:47px;height:47px;background-position:100% 100%}
+#scene .pack{position:relative;width:69px;height:69px;background-position:50% 100%;margin:0 2px 10px 0;border-radius:12px}
+.pack span{position:absolute;overflow:hidden;clip-path:inset(50%);width:1px;height:1px}
+.pack small{position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);white-space:nowrap;color:#fff1ce;background:#204b48;border:1px solid #e2bd6b;border-radius:14px;padding:1px 7px;font-size:10px;line-height:1.35}
+#scene .stick{background-position:0 0;border-radius:50%;width:clamp(104px,28vw,136px);height:auto;aspect-ratio:1}
+#scene .stick span{inset:31%;border-radius:50%;background-position:0 100%}
+#scene #cast{position:relative;width:clamp(102px,28vw,138px);height:auto;aspect-ratio:1;border-radius:42%;background-position:50% 0;animation:none}
+#scene #cast b{position:absolute;left:16%;right:16%;top:69.5%;color:#53361f;font:900 clamp(13px,1.85vw,20px)/1.1 "Malgun Gothic","Apple SD Gothic Neo",sans-serif;letter-spacing:-.07em;text-shadow:0 1px 0 #fff3d1}
+#scene .interact{position:relative;width:68px;height:68px;border-radius:50%;background-position:100% 0;margin-right:7px}
+#scene .interact span{position:absolute;bottom:-4px;left:50%;transform:translateX(-50%);white-space:nowrap;background:#214f49;border:1px solid #dab870;border-radius:12px;padding:1px 7px;color:#fff1c6;font-size:10px;text-shadow:none}
+#scene .interact:disabled{visibility:hidden}
+.charging #scene #cast{filter:drop-shadow(0 0 6px #ffe3a5)}.biting #scene #cast{filter:drop-shadow(0 0 8px #ffc740)}
+#doorSign,.pc-help,.arc-prompt,.snack,#notice{background-color:#174c4c;border-color:#dcbc79}
+#world:focus:not(:focus-visible){outline:none}
+@media(min-width:700px){#scene{--insetX:max(17px,env(safe-area-inset-left));--insetR:max(17px,env(safe-area-inset-right))}}
+@media(max-width:360px){#account{width:135px}.top-tools{gap:1px}#scene .wallet{min-width:73px;height:34px;font-size:12px}#scene .gear{width:40px;height:40px}}
+@media(orientation:landscape) and (max-height:520px){
+  #account{width:130px}.profile-name strong{font-size:11px}.profile-name small{font-size:8px}#scene .wallet{min-width:72px;height:33px;padding-top:5px;font-size:12px}
+  #scene .gear{width:36px;height:36px}#scene .pack{width:46px;height:46px}#scene .stick{width:88px}#scene #cast{width:94px}#scene #cast b{font-size:13px}#scene .interact{width:49px;height:49px}
+}
+
+/* Paper panels use nine-slice borders so their brass corners keep their proportions. */
+dialog.counter[open]{background:#58402a}
+dialog.counter #panelBody{
+  background:repeating-linear-gradient(1deg,#684326 0 2px,#6d472c 3px 4px,#674026 6px 9px,#795338 10px 12px);
+}
+dialog.counter #panelTitle,dialog.counter #panelBody .speech b{
+  box-sizing:border-box;background:transparent url("assets/plaque.webp") center/100% 100% no-repeat;
+  border:0;border-radius:0;box-shadow:none;color:#fff0c7;font-weight:900;text-shadow:0 2px 1px #193b3a;
+}
+dialog.counter #panelTitle{padding:7px 22px 8px;line-height:1.25}
+dialog.counter #shopWallet{display:flex;align-items:center;min-width:90px;height:40px;padding:7px 12px 0 32px;font-size:14px;background-color:transparent;border:0}
+dialog.counter #closePanel{border:2px solid #e4bd70;color:#fff3cf;background:radial-gradient(at 34% 28%,#427b78,#10464b);border-radius:50%;width:40px;height:40px;padding:0;font:900 24px/1 system-ui;box-shadow:inset 0 0 0 2px #245351,0 2px 2px #1c281f7a}
+dialog.counter #panelBody .speech{
+  position:relative;isolation:isolate;z-index:1;margin-bottom:19px;padding:19px 9% 15px 8%;width:min(570px,95%);min-height:72px;
+  color:#4f321d;border:0;box-shadow:none;background:transparent;
+}
+dialog.counter #panelBody .speech:before{
+  content:"";position:absolute;inset:0;z-index:-1;border:solid transparent;border-width:15px 33px 15px;
+  border-image:url("assets/speech-paper.webp") 44 108 35 fill / 17px 40px 17px / 0 stretch;
+}
+dialog.counter #panelBody .speech b{position:absolute;top:-10px;left:8%;margin:0;padding:3px 16px 5px;font-size:14px}
+dialog.counter #panelBody .speech p{color:#513820!important;font-weight:750}
+dialog.counter .shop-ledger{
+  position:relative;isolation:isolate;border:0;margin:9px 10px 10px 6px;padding-left:clamp(15px,2vw,32px);padding-right:clamp(15px,2vw,32px);
+  background:transparent;border-image:url("assets/ledger-paper.webp") 58 98 55 fill / 35px 42px 33px / 0 stretch;
+}
+dialog.counter[data-view=merchant] .counter-options{gap:15px}
+dialog.counter .shop-choice{
+  display:flex;align-items:center;justify-content:flex-start;position:relative;aspect-ratio:3.7;width:100%;height:auto;min-height:0;
+  background:transparent url("assets/sell-ticket.webp") center/100% 100% no-repeat;color:#fff1ce;
+  border:0;border-radius:0;box-shadow:none;padding:6% 6% 3% 41%;text-align:center;
+}
+dialog.counter .shop-choice[data-do="open:shop"]{background-image:url("assets/tool-ticket.webp")}
+dialog.counter .shop-choice>.painted,dialog.counter .shop-choice>b{display:none}
+dialog.counter .shop-choice>span{display:block;width:100%;color:#fff1cf;white-space:nowrap;font-weight:900;line-height:1.12;font-size:clamp(15px,2vw,25px);text-shadow:0 2px 1px #182f31}
+dialog.counter .shop-choice small{font-size:clamp(9px,.92vw,12px);margin-top:3px;color:#f6de9f}
+.counter-stock .row{padding:10px 3px;border-bottom-color:#c3a278}.counter-stock .row strong,.shop-ledger h3{color:#483921}
+dialog.counter .shop-ledger h3:not(.sr-only){padding-bottom:9px;border-bottom:1px solid #c6a46b}
+.counter-stock .row button,.counter-stock>.action{border-color:#ab874b}
+dialog:not(.counter):not(.discovery){background:#f7e6be url("assets/ledger-paper.webp") center/100% 100%;border-color:#91744b}
+dialog:not(.counter):not(.discovery) .dialog-head{background:linear-gradient(#1c5857,#164343);border-bottom-color:#caae70;color:#fff0cc}
+dialog:not(.counter):not(.discovery) .kit-tabs .selected,dialog:not(.counter):not(.discovery) .choice.selected{background:#195451;color:#fff3d6;border-color:#bb985f}
+dialog:not(.counter):not(.discovery) .catch-slot,dialog:not(.counter):not(.discovery) .specimen{background-color:#fff5db;border-color:#c5a879}
+@media(orientation:portrait){
+  dialog.counter #panelBody{grid-template-rows:minmax(0,1fr) minmax(190px,39%)}
+  dialog.counter:not([data-view=merchant]) #panelBody{grid-template-rows:minmax(0,37%) minmax(0,1fr)}
+  dialog.counter #panelTitle{padding:7px 15px;font-size:15px}
+  dialog.counter .shop-ledger{margin:0 6px max(6px,env(safe-area-inset-bottom));padding:12px 15px 18px}
+  dialog.counter[data-view=merchant] .shop-ledger{justify-content:center}
+  dialog.counter[data-view=merchant] .counter-options{gap:6px;width:min(100%,450px);align-self:center}
+  dialog.counter #panelBody .speech{margin-bottom:8px;width:94%;min-height:65px;padding:18px 8% 13px}
+  dialog.counter .shop-choice>span{font-size:clamp(16px,5vw,23px)}dialog.counter .shop-choice small{font-size:10px}
+}
+@media(orientation:landscape) and (max-height:520px){
+  dialog.counter .shop-ledger{margin:3px 5px 4px;padding-top:49px;padding-bottom:12px}
+  dialog.counter[data-view=merchant] .counter-options{gap:7px}
+  dialog.counter .shop-choice>span{font-size:16px}
+  dialog.counter #panelBody .speech{margin-bottom:7px;min-height:52px;padding:14px 7% 9px}
+  dialog.counter #panelTitle{font-size:13px;padding:5px 16px}
+  dialog.counter #closePanel{width:34px;height:34px;min-height:34px;min-width:34px}
+  dialog.counter #shopWallet{min-width:70px;height:33px;font-size:12px}
+}

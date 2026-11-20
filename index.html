@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#156975"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><title>해변 낚시왕</title><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ctext y='38' font-size='38'%3E🎣%3C/text%3E%3C/svg%3E"><link rel="preload" as="image" href="assets/harbor.webp"><link rel="stylesheet" href="game.css?v=4"></head>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#156975"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><title>해변 낚시왕</title><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ctext y='38' font-size='38'%3E🎣%3C/text%3E%3C/svg%3E"><link rel="preload" as="image" href="assets/harbor-hd.webp"><link rel="stylesheet" href="game.css?v=5"><link rel="stylesheet" href="harbor-art.css?v=5"></head>
 <body><main id="scene" aria-label="소라빛 해변 낚시터">
-<canvas id="coast" aria-hidden="true"></canvas><canvas id="world" aria-label="해변의 낚시꾼 · 바닥을 눌러 이동"></canvas>
-<button id="doorSign" aria-label="소라 낚시점 문으로 걷기">소라 낚시점 <b>⌄</b></button><svg id="castTrail" aria-hidden="true"><path/><g id="castAim"><path id="aimCurve"/><g id="aimSpot"><ellipse rx="9" ry="4"/><ellipse rx="14" ry="6"/></g></g></svg><output id="flightMark" hidden></output>
+<canvas id="coast" aria-hidden="true"></canvas><canvas id="world" tabindex="-1" aria-label="해변의 낚시꾼 · 바닥을 눌러 이동"></canvas>
+<i id="mapMark" aria-hidden="true" hidden></i><button id="doorSign" aria-label="소라 낚시점 문으로 걷기">소라 낚시점 <b>⌄</b></button><svg id="castTrail" aria-hidden="true"><path/><g id="castAim"><path id="aimCurve"/><g id="aimSpot"><ellipse rx="9" ry="4"/><ellipse rx="14" ry="6"/></g></g></svg><output id="flightMark" hidden></output>
 <div class="profile-area">
-  <button id="account" data-open="account" class="profile"><i class="float-mark"><img id="avatar" alt=""></i><span class="profile-name"><strong>해변 낚시왕</strong><small id="playerName">게스트</small></span></button>
+  <button id="account" data-open="account" class="profile"><i class="float-mark"><img id="avatar" alt=""></i><span class="profile-name"><strong>해변 <em>낚시왕</em></strong><small id="playerName">게스트</small></span></button>
   <div class="place"><i data-icon="sun"></i><span>소라빛 해변</span></div>
 </div>
 <div class="top-tools">
@@ -15,7 +15,7 @@
 <div id="notice" role="status" hidden></div>
 <div class="stick" id="stick" aria-label="이동 조이스틱"><b>⌃</b><b>‹</b><b>›</b><b>⌄</b><span></span></div>
 <div class="pc-help"><kbd>WASD</kbd> 이동 <span>·</span> <kbd>Space</kbd> 낚시</div>
-<div class="action-pad"><button class="interact" id="interact" disabled title="상점 문 가까이에서 대화할 수 있어요"><i data-icon="talk"></i><span>상호작용</span></button><button id="cast" aria-describedby="hint"><i data-icon="castRod"></i><b>낚싯줄 던지기</b></button></div>
+<div class="action-pad"><button class="interact" id="interact" disabled title="상점 문 가까이에서 대화할 수 있어요"><i data-icon="talk"></i><span>상호작용</span></button><button id="cast" aria-describedby="hint"><i data-icon="castRod"></i><b>던지기</b></button></div>
 <div id="meter" hidden role="meter" aria-label="던질 힘" aria-valuemin="0" aria-valuemax="100">
   <span class="arc-prompt">던질 거리를 조절하세요!</span>
   <svg class="power-arc" viewBox="0 0 300 88" aria-hidden="true">
@@ -24,10 +24,10 @@
     <g fill="none" stroke-linecap="round"><use href="#arcRail" stroke="#29495d" stroke-width="26"/><use href="#arcRail" stroke="#fff6d6" stroke-width="22"/><use href="#arcRail" stroke="url(#rangeColors)" stroke-width="16"/><use id="arcShade" href="#arcRail" stroke="#263e59" stroke-opacity=".23" stroke-width="16"/></g>
     <g id="arcNeedle"><path d="M -8 -20 L 8 -20 L 0 -6 Z" fill="#ffbd45" stroke="#fffbe0" stroke-width="2.6" stroke-linejoin="round"/><path d="M 0 -6 L 0 6" stroke="#fff9da" stroke-width="2.5"/></g>
   </svg>
-  <div class="arc-reading"><b id="powerText">0%</b><span id="meterDistance">2.0 m</span></div>
+  <div class="arc-reading"><b id="powerText">0%</b><span id="aimSurface"></span><span id="meterDistance">2.0 m</span></div>
 </div>
 <span id="hint" class="sr-only">꾹 눌렀다가 원하는 힘에서 놓으세요</span>
 <div class="snack" id="snack" role="status"><i data-icon="device"></i><span id="deviceText"></span><button data-open="device">바꾸기</button><button id="dismiss" aria-label="알림 닫기">×</button></div>
 </main>
-<dialog id="panel"><div class="dialog-head"><span id="panelBadge"></span><h2 id="panelTitle" tabindex="-1"></h2><button class="close" id="closePanel" aria-label="닫기">×</button></div><div id="panelBody"></div></dialog>
-<script src="three.min.js"></script><script src="catalog.js?v=4"></script><script src="fish-art.js?v=4"></script><script src="music.js?v=4"></script><script src="beach-map.js?v=4"></script><script src="angler.js?v=4"></script><script src="world.js?v=4"></script><script src="game.js?v=4"></script></body></html>
+<dialog id="panel"><div class="dialog-head"><span id="panelBadge"></span><h2 id="panelTitle" tabindex="-1"></h2><span id="shopWallet" hidden></span><button class="close" id="closePanel" aria-label="닫기">×</button></div><div id="panelBody"></div></dialog>
+<script src="three.min.js"></script><script src="catalog.js?v=5"></script><script src="fish-art.js?v=5"></script><script src="music.js?v=5"></script><script src="beach-map.js?v=5"></script><script src="angler.js?v=5"></script><script src="world.js?v=5"></script><script src="game.js?v=5"></script></body></html>

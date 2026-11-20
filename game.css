@@ -64,7 +64,7 @@ dialog.discovery{
 
 
 /* The fishing kit and shop share brass fittings, ink-blue linen and paper labels. */
-#scene{background:#3c988e url("assets/harbor.webp") center/cover no-repeat}
+#scene{background:#3c988e url("assets/harbor-hd.webp") center/cover no-repeat}
 .painted{display:inline-block;flex:none;width:46px;height:46px;background-image:url("assets/harbor-tools.webp");background-size:400% 300%;background-position:calc(var(--ix)*100%/3) calc(var(--iy)*50%);background-repeat:no-repeat}
 .pack .painted{width:40px;height:34px}.gear .painted{width:31px;height:31px}
 #doorSign,#flightMark{position:absolute;z-index:1;transform:translate(-50%,-100%);white-space:nowrap;font-weight:850}
@@ -96,14 +96,8 @@ dialog:not(.discovery) #panelBody{padding:16px 17px 18px}.kit-tabs{display:grid;
 .sound-board{background:#e6efdf;border:1px solid #a6bba2;box-shadow:inset 0 0 0 3px #f2f4de;border-radius:13px;padding:8px 11px;margin-bottom:13px}
 .volume{display:grid;grid-template-columns:42px 1fr auto;gap:1px 9px;align-items:center;margin:4px 0 7px}.volume .painted{grid-row:span 2;width:39px;height:39px}.volume input{grid-column:2/-1;margin:2px 0 5px;accent-color:#2c6971}.volume output{border-radius:10px;background:#d8e4cd;font-size:11px;color:#345953;padding:2px 5px}
 .field input{border-color:#baa477;box-shadow:inset 0 2px 4px #99805a17}.choices{gap:6px}.specimen{display:block}.specimen b{padding:0 3px;color:#394c4b}
-dialog.counter{width:min(575px,calc(100vw - 20px));background:#fcf1d8}
-dialog.counter #panelBody{padding:0 0 12px}.counter-view{height:clamp(128px,32dvh,255px);background:url("assets/counter.webp") 52% 44%/cover no-repeat;border-bottom:4px solid #ac784a}
-.speech{position:relative;margin:-14px 14px 8px;padding:10px 14px 11px;border:2px solid #a57d4f;border-radius:14px;background:linear-gradient(110deg,#fffae9,#f4e2bb);box-shadow:0 3px 0 #c1a272}.speech b{display:inline-block;margin:-21px 0 5px;vertical-align:top;background:#335b68;border:1px solid #d2ad6d;border-radius:15px;padding:3px 11px;font-size:12px;color:#fff1c8}.counter .speech p{margin:0!important;font-weight:700;color:#4c4739!important}
-.counter-options{display:grid;gap:6px;padding:4px 15px 2px}.shop-choice{width:100%;justify-content:start;text-align:left;gap:9px;border-radius:12px;padding:3px 12px;font-size:14px}.shop-choice .painted{width:33px;height:33px}.shop-choice b{margin-left:auto;font-size:19px;color:#8b7852}
-.counter-stock{padding:3px 15px 0}.counter-stock>button{margin:8px 0 3px;border-radius:10px;min-height:38px;padding:5px 12px}.counter-stock>.action{background:#365f67;color:#fff6df}.purse{display:flex;align-items:center;justify-content:flex-end;gap:5px}.purse .painted{width:30px;height:30px}
-.counter[data-view=shop] .counter-view,.counter[data-view=trade] .counter-view{height:clamp(85px,18dvh,135px);background-position:52% 33%}.counter #feedback:not(:empty){margin:10px 15px 0!important;color:#345e53}
 @media(max-width:600px){.stick{width:116px;height:116px}.interact{width:66px;height:66px}#cast{width:88px;height:88px}.mobile #meter{width:clamp(70px,calc(100vw - 240px),180px);min-width:0;left:53%;bottom:calc(var(--insetB) + 20px)}.kit-summary>.painted{width:37px;height:37px}}
-@media(orientation:landscape) and (max-height:520px){.stick{width:88px;height:88px}.interact{width:53px;height:53px;font-size:10px}.interact i svg{width:20px;height:20px}.action-pad{gap:6px}.mobile .snack,.mobile #notice{bottom:var(--insetB);max-width:46%}.pack .painted{width:28px;height:25px}.gear .painted{width:24px;height:24px}dialog:not(.discovery) .dialog-head{min-height:43px;padding:3px 10px 6px}#panelBadge .painted{width:30px;height:30px}dialog.counter{width:min(680px,calc(100vw - 26px))}dialog.counter #panelBody{display:grid;grid-template-columns:39% 1fr;align-items:start;padding:0 0 6px}.counter .counter-view{grid-column:1;grid-row:1/4;height:100%;min-height:165px;border:0;border-right:3px solid #ab8054;background-position:56% 35%}.counter .speech{grid-column:2;margin:9px 9px 4px;padding:6px 10px}.counter .speech b{margin:-9px 0 2px}.counter-options,.counter-stock,.counter #feedback{grid-column:2}.counter-options,.counter-stock{padding:2px 9px}.counter[data-view=shop] .counter-view,.counter[data-view=trade] .counter-view{height:100%;position:sticky;top:43px;max-height:calc(100dvh - 66px)}}
+@media(orientation:landscape) and (max-height:520px){.stick{width:88px;height:88px}.interact{width:53px;height:53px;font-size:10px}.interact i svg{width:20px;height:20px}.action-pad{gap:6px}.mobile .snack,.mobile #notice{bottom:var(--insetB);max-width:46%}.pack .painted{width:28px;height:25px}.gear .painted{width:24px;height:24px}dialog:not(.discovery) .dialog-head{min-height:43px;padding:3px 10px 6px}#panelBadge .painted{width:30px;height:30px}}
 
 #scene #meter{top:calc(var(--insetT) + 20px);bottom:auto;left:50%;width:clamp(205px,35vw,365px);max-width:none;min-width:0;padding:0;background:none;border:0;box-shadow:none;border-radius:0}
 .arc-prompt,.arc-reading{display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:18px;background:#203b50ed;color:#fff7e1;box-shadow:0 2px 4px #16324054;border:1px solid #d1d9b6;padding:3px 12px;line-height:1.35}
@@ -113,3 +107,72 @@ dialog.counter #panelBody{padding:0 0 12px}.counter-view{height:clamp(128px,32dv
 @media(orientation:landscape) and (max-height:520px){#scene #meter{top:var(--insetT);width:min(33vw,225px)}.arc-prompt{font-size:10px}.arc-reading{font-size:10px}}
 #castAim{display:none}.charging #castAim{display:block}#castTrail #aimCurve{fill:none;stroke:#ffffee;stroke-width:2;stroke-dasharray:5 6;stroke-linecap:round;filter:drop-shadow(0 1px 1px #216671aa)}#aimSpot ellipse{fill:none;stroke:#fcffe9;stroke-width:1.6;opacity:.9}
 .discovery #panelTitle:focus{outline:none}
+/* The counter is an interior scene. Only the ledger scrolls while trading. */
+dialog.counter[open]{
+  position:fixed;inset:0;margin:0;box-sizing:border-box;width:100%;height:100%;height:100dvh;max-width:none;max-height:none;
+  overflow:hidden;border:0;border-radius:0;box-shadow:none;background:#49382b;color:#302e28;
+}
+dialog.counter::backdrop{background:#49382b;backdrop-filter:none}
+dialog.counter .dialog-head{
+  position:absolute;inset:0 0 auto;z-index:4;display:flex;gap:9px;align-items:center;
+  padding:max(14px,env(safe-area-inset-top)) max(20px,env(safe-area-inset-right)) 16px max(20px,env(safe-area-inset-left));
+  min-height:62px;border:0;background:linear-gradient(#182627b8,#18262700);box-shadow:none;pointer-events:none;
+}
+dialog.counter .dialog-head:after{display:none}
+dialog.counter #panelBadge{display:none}
+dialog.counter #panelTitle{flex:0 1 auto;color:#fffae9;font-size:clamp(16px,2vw,25px);text-shadow:0 1px 3px #201d15;
+  padding:6px 12px;border-radius:9px;background:#30392edb;border:1px solid #ecd3a78a}
+#shopWallet{margin-left:auto;color:#fff1bd;background:#293b38e8;border:1px solid #f4dab188;border-radius:20px;padding:7px 12px;font-weight:800;font-size:13px;white-space:nowrap}
+dialog.counter #closePanel{pointer-events:auto;width:auto;min-height:38px;padding:6px 13px;border:1px solid #dbc495;border-radius:20px;background:#fff5dc;color:#3b4132;font-family:inherit;font-size:13px;font-weight:800;line-height:1.3;text-shadow:none;box-shadow:0 2px 7px #29201933}
+dialog.counter #panelBody{position:relative;isolation:isolate;display:grid;align-items:stretch;grid-template-columns:minmax(0,1.6fr) minmax(310px,1fr);grid-template-rows:minmax(0,1fr);width:100%;height:100%;padding:0;overflow:hidden}
+dialog.counter #panelBody .counter-view{grid-area:1/1;position:relative;inset:auto;height:100%;min-height:0;max-height:none;border:0;background:url("assets/counter.webp") 57% 43%/cover no-repeat}
+dialog.counter .counter-view:after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,#271e16cc,transparent 31%)}
+dialog.counter #panelBody .speech{grid-area:1/1;z-index:1;align-self:end;justify-self:center;width:min(480px,calc(100% - 44px));margin:0 0 max(28px,env(safe-area-inset-bottom));padding:12px 18px 16px;background:#fff4dbf5;border:1px solid #c9ae80;border-radius:4px 17px 17px 17px;box-shadow:0 4px 20px #251b164d}
+dialog.counter .speech b{display:table;border:1px solid;border-radius:15px;color:#fff5d9;background:#2d5b58;border-color:#c9ae80;font-size:13px;padding:4px 13px;margin:-24px 0 5px}
+dialog.counter .speech p{font-size:clamp(14px,1.5vw,19px);line-height:1.5}
+.shop-ledger{grid-area:1/2;align-self:stretch;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;
+  background:linear-gradient(105deg,#f3e4bc -4%,#fff6df 7%,#fbefd3 100%);border-left:5px solid #815d39;
+  padding:clamp(74px,12vh,104px) clamp(16px,2.8vw,44px) max(24px,env(safe-area-inset-bottom));
+}
+.counter[data-view=merchant] .shop-ledger{display:flex;flex-direction:column;justify-content:center}
+.shop-ledger h3{margin:0 0 20px;font-size:clamp(21px,2.2vw,32px);letter-spacing:-.06em;color:#39433b}
+dialog.counter .counter-options{display:grid;grid-template-columns:1fr;gap:12px;padding:0}
+dialog.counter .shop-choice{min-height:86px;display:grid;grid-template-columns:60px 1fr auto;gap:12px;width:100%;border:1px solid #bca27b;border-radius:15px;padding:10px 15px;background:#fffae9;box-shadow:inset 0 0 0 3px #fff2d2,0 3px 0 #c7b38b;color:#3e4339;text-align:left}
+dialog.counter .shop-choice>b{font-size:22px;color:#6e7f6c}dialog.counter .shop-choice .painted{width:58px;height:58px}.shop-choice span{font-size:clamp(15px,1.5vw,21px);letter-spacing:-.045em}.shop-choice small{display:block;font-size:12px;font-weight:600;color:#716954;margin-top:4px}.shop-choice b{color:#577f73}
+dialog.counter .counter-stock{padding:0}.counter-back{padding:4px 0 9px;min-height:32px;color:#4e6559;font-weight:750;font-size:12px}
+.counter-stock .row{border:0;border-bottom:1px solid #d3c29f;border-radius:0;box-shadow:none;background:none;padding:9px 0;margin:0;gap:8px}
+.counter-stock .row button{font-size:12px;min-height:40px}.counter-stock .gear-up{padding-left:37px}.counter-stock .empty-creel{display:grid;place-items:center;gap:12px;background:#fff8e5;padding:24px 8px;border:1px solid #d5c3a0;border-radius:15px}.empty-creel .painted{width:80px;height:75px}
+dialog.counter .counter-stock>.action{position:sticky;bottom:0;background:#2d625c;color:#fff6da;min-height:45px}
+dialog.counter #feedback:not(:empty){position:absolute;z-index:5;bottom:10px;left:20%;transform:translateX(-50%);max-width:47%;margin:0!important;padding:6px 12px;border-radius:18px;background:#25463f;color:#fff6da;font-size:12px;pointer-events:none}
+@media(orientation:portrait){
+  dialog.counter #panelBody{grid-template-columns:100%;grid-template-rows:minmax(0,1fr) minmax(200px,39%)}
+  dialog.counter:not([data-view=merchant]) #panelBody{grid-template-rows:minmax(0,36%) minmax(0,1fr)}
+  dialog.counter .dialog-head{padding:max(10px,env(safe-area-inset-top)) 10px 12px;gap:5px;min-height:54px}
+  dialog.counter #panelTitle{font-size:15px;padding:6px 8px}#shopWallet{font-size:12px;padding:6px 8px}dialog.counter #closePanel{font-size:12px;padding:5px 9px}
+  dialog.counter #panelBody .counter-view{background-position:56% 39%}
+  dialog.counter #panelBody .speech{width:calc(100% - 28px);margin-bottom:14px;padding:8px 13px 10px}
+  .shop-ledger{grid-area:2/1;padding:16px 16px max(16px,env(safe-area-inset-bottom));border-left:0;border-top:4px solid #96764d}
+  .counter[data-view=merchant] .shop-ledger{justify-content:flex-start}
+  .shop-ledger h3{font-size:20px;margin-bottom:10px}
+  dialog.counter .counter-options{gap:8px}dialog.counter .shop-choice{min-height:61px;grid-template-columns:41px 1fr auto;gap:10px;padding:6px 11px}dialog.counter .shop-choice .painted{width:39px;height:39px}
+  dialog.counter #feedback:not(:empty){bottom:auto;top:51px;left:50%;max-width:80%}
+}
+@media(orientation:landscape) and (max-height:500px){
+  dialog.counter .dialog-head{min-height:44px;padding:4px max(10px,env(safe-area-inset-right)) 4px max(10px,env(safe-area-inset-left))}
+  dialog.counter #panelTitle{font-size:14px}dialog.counter #closePanel{min-height:34px}
+  .shop-ledger{padding-top:54px}.shop-ledger h3{font-size:20px;margin-bottom:9px}
+  dialog.counter .shop-choice{min-height:52px;grid-template-columns:40px 1fr auto;padding:4px 10px}dialog.counter .shop-choice .painted{width:39px;height:39px}
+  dialog.counter #panelBody .speech{margin-bottom:13px}
+}
+#mapMark{position:absolute;width:22px;height:13px;transform:translate(-50%,-50%);pointer-events:none;border:2px solid #fff7ce;box-shadow:0 0 0 2px #86683ba8;border-radius:50%}#mapMark[data-kind=aim]{border-color:#e5fffa;box-shadow:0 0 0 2px #16858b,0 0 0 7px #f1fcff61}
+#stick.floating{bottom:auto;transform:translate(-50%,-50%);pointer-events:none}#stick.engaged{border-color:#fff7d6;background-color:#23485480}
+#castAim.dry #aimCurve,#castAim.dry ellipse{stroke:#ff986d}#aimSurface{color:#faefbe}
+
+#interact:disabled{visibility:hidden}
+dialog:not(.counter):not(.discovery) .row button,.kit-tabs button{min-height:42px}
+@media(max-width:600px) and (orientation:portrait){
+  dialog[open]:not(.counter):not(.discovery){position:fixed;inset:auto 0 0;margin:0;width:100%;max-width:100%;max-height:86dvh;border:0;border-top:2px solid #b5a078;border-radius:21px 21px 0 0;box-shadow:0 -8px 36px #173d3e55}
+  dialog:not(.counter):not(.discovery) #panelBody{padding:14px 15px max(18px,env(safe-area-inset-bottom))}
+  dialog:not(.counter):not(.discovery) .dialog-head{min-height:54px;padding:6px 14px}
+  .kit-tabs{gap:7px}.kit-tabs button{font-size:13px}.catch-slot{min-height:72px}
+}
