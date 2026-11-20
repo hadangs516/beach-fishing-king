@@ -65,7 +65,18 @@ function beachAudio(settings) {
     if(!document.hidden&&context.state==="suspended")context.resume().catch(()=>{});
   }
   document.addEventListener("visibilitychange",()=>{if(!context)return;if(document.hidden)context.suspend().catch(()=>{});else start()});
-  return {start,volumes,chime(hz){if(!context||settings.effects===0)return;const n=69+12*Math.log2(hz/440);
+  function castSound(splash=false){
+    if(!context||settings.effects===0)return;
+    const seconds=splash?.29:.34,at=context.currentTime,buffer=context.createBuffer(1,Math.ceil(seconds*context.sampleRate),context.sampleRate);
+    const samples=buffer.getChannelData(0);for(let i=0;i<samples.length;i++)samples[i]=Math.random()*2-1;
+    const source=context.createBufferSource(),filter=context.createBiquadFilter(),env=context.createGain();
+    source.buffer=buffer;filter.type="bandpass";filter.Q.value=splash?.8:2.2;
+    filter.frequency.setValueAtTime(splash?3200:620,at);filter.frequency.exponentialRampToValueAtTime(splash?560:2400,at+seconds*.75);
+    env.gain.setValueAtTime(.001,at);env.gain.exponentialRampToValueAtTime(splash?.53:.32,at+(splash?.012:.095));env.gain.exponentialRampToValueAtTime(.001,at+seconds);
+    source.connect(filter);filter.connect(env);env.connect(effects);source.start(at);
+    source.onended=()=>{source.disconnect();filter.disconnect();env.disconnect()};
+  }
+  return {start,volumes,castSound,chime(hz){if(!context||settings.effects===0)return;const n=69+12*Math.log2(hz/440);
     voice(n,context.currentTime+.01,.19,"bell",.18,0,effects);
     voice(n+4,context.currentTime+.09,.19,"bell",.11,.1,effects)}};
 }

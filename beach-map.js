@@ -1,80 +1,65 @@
-// Corresponding walking surfaces in the two painted camera views. Each pair is
-// the landward and seaward end of a cross-section, ordered farthest to nearest.
-const BEACH_VIEWS = {
-  wide: {
-    width:1536, height:1024, image:"assets/cove-wide.webp", unit:64, depth:34,
-    spawn:[705,648],
-    bands:[
-      [[928,378],[1068,378]], [[827,424],[1106,424]], [[652,467],[999,467]],
-      [[405,515],[954,515]], [[420,568],[895,568]], [[340,628],[819,628]],
-      [[245,672],[793,672]], [[116,709],[706,709]], [[125,733],[677,745]],
-      [[160,741],[642,779]], [[182,747],[623,801]]
-    ],
-    pier:[[55,727],[664,837],[526,911],[54,811]], pierJoin:[.23,.90],
-    coast:[[1536,293],[1287,301],[1095,315],[1033,334],[918,347],[1052,364],
-      [1156,383],[1190,399],[1119,422],[1152,435],[1023,466],[1041,490],
-      [970,515],[899,548],[967,564],[845,614],[847,655],[789,679],[718,708],
-      [710,733],[657,768],[675,790],[645,816],[657,850],[698,873],[789,913],
-      [888,947],[931,977],[1011,1024]],
-    seaBottom:[1536,1024],
-    pierMask:[[0,665],[110,658],[145,707],[218,688],[250,683],[258,738],[375,758],
-      [382,719],[415,720],[420,774],[654,812],[663,781],[705,787],[709,939],
-      [553,978],[536,1024],[476,1024],[460,931],[368,919],[346,991],[301,988],[283,884],[0,835]]
-  },
-  tall: {
-    width:1024, height:1536, image:"assets/cove-tall.webp", unit:94, depth:52,
-    spawn:[440,949],
-    bands:[
-      [[692,585],[809,585]], [[540,622],[789,622]], [[426,667],[793,667]],
-      [[241,708],[723,708]], [[204,760],[662,760]], [[88,815],[681,815]],
-      [[40,900],[590,900]], [[38,994],[511,994]], [[127,1076],[398,1076]],
-      [[154,1126],[357,1126]], [[177,1155],[330,1160]]
-    ],
-    pier:[[48,1149],[587,1244],[477,1322],[47,1255]], pierJoin:[.27,.48],
-    coast:[[1024,390],[934,394],[887,408],[1009,423],[1011,454],[784,476],
-      [716,495],[730,519],[818,542],[898,565],[862,586],[834,606],[787,629],
-      [815,646],[831,667],[775,687],[751,710],[699,737],[675,767],[715,788],
-      [695,815],[640,850],[649,864],[611,894],[571,916],[519,947],[509,968],
-      [546,993],[506,1021],[463,1045],[426,1060],[367,1095],[393,1120],
-      [355,1140],[317,1186],[281,1219],[253,1260],[226,1309],[216,1350],
-      [204,1400],[190,1420],[229,1466],[336,1501],[356,1536]],
-    seaBottom:[1024,1536],
-    pierMask:[[0,1055],[147,1061],[154,1144],[222,1158],[222,1123],[271,1123],
-      [279,1173],[562,1226],[566,1176],[619,1170],[630,1350],[493,1400],
-      [483,1460],[409,1472],[405,1371],[160,1316],[132,1406],[72,1400],[0,1312]]
-  }
+/* Coordinates refer to the 1280 × 720 harbour illustration, before camera zoom. */
+const HARBOR = {
+  spawn:[440,213], door:[352,134], exit:[356,157], unit:24, depth:16,
+  shore:[[0,326],[49,306],[79,296],[139,282],[207,262],[286,269],[351,249],[414,254],[482,240],[549,218],[624,220],[680,207],[727,215],[767,208],[835,217],[897,228],[956,254]],
+  piers:[
+    [[76,298],[104,293],[213,459],[181,475]],
+    [[757,215],[783,214],[962,245],[974,264],[896,247],[751,228]]
+  ],
+  // Connected sand, promenade, lighthouse trail and both breakwaters.
+  land:[
+    [[73,286],[98,279],[114,297],[100,309],[82,307]],
+    [[0,300],[60,236],[142,207],[180,188],[247,179],[269,157],[350,152],[398,144],[487,133],[520,125],[774,120],[820,140],[890,150],[948,182],[959,244],[897,220],[780,205],[679,204],[550,215],[478,237],[411,251],[348,246],[284,264],[211,257],[141,278],[71,294],[0,321]],
+    [[232,125],[259,118],[294,143],[342,133],[424,116],[456,112],[485,128],[492,137],[400,151],[348,160],[271,170]],
+    [[488,124],[498,117],[641,116],[660,123],[771,117],[827,130],[915,142],[944,162],[935,176],[888,160],[815,146],[769,135],[550,139]],
+    [[913,155],[939,154],[975,182],[986,212],[1009,244],[1047,267],[1050,277],[1029,274],[991,251],[970,217],[956,191]],
+    [[966,227],[985,236],[999,256],[1034,271],[1065,278],[1111,309],[1184,323],[1189,343],[1154,354],[1127,347],[1154,335],[1097,318],[1043,294],[1021,279],[988,267],[959,247]],
+    [[343,133],[360,131],[372,152],[340,158]]
+  ],
+  obstacles:[
+    [[175,206],[205,197],[228,220],[246,230],[227,246],[194,239]],
+    [[250,184],[280,180],[305,206],[315,215],[292,224],[265,208]],
+    [[344,166],[370,157],[386,171],[367,181]],
+    [[406,145],[453,139],[459,152],[409,159]],
+    [[733,143],[769,143],[766,159],[736,159]]
+  ]
 };
-function beachTriangles(view) {
-  const triangles=[];
-  function quad(a,b,c,d){triangles.push([a,b,c],[a,c,d])}
-  const [start,end,farEnd,farStart]=view.pier;
-  const along=(a,b,t)=>[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t];
-  const seams=[0,...view.pierJoin,1];
-  const shore=seams.map(t=>along(start,end,t)),outer=seams.map(t=>along(farStart,farEnd,t));
-  for(let i=1;i<seams.length;i++)quad(shore[i-1],shore[i],outer[i],outer[i-1]);
-  view.pierTriangleCount=triangles.length;
-  const bands=[...view.bands,[shore[1],shore[2]]];
-  for(let i=1;i<bands.length;i++){
-    const [a,b]=bands[i-1], [d,c]=bands[i];
-    quad(a,b,c,d);
+function harborInside(x,y,polygon){
+  let inside=false;
+  for(let i=0,j=polygon.length-1;i<polygon.length;j=i++){
+    const a=polygon[i],b=polygon[j];
+    if((a[1]>y)!==(b[1]>y)&&x<(b[0]-a[0])*(y-a[1])/(b[1]-a[1])+a[0])inside=!inside;
   }
-  return triangles;
+  return inside;
 }
-for(const view of Object.values(BEACH_VIEWS))view.triangles=beachTriangles(view);
-function beachTriangleAt(point,view) {
-  for(let i=0;i<view.triangles.length;i++){
-    const [a,b,c]=view.triangles[i];
-    const bx=b[0]-a[0],by=b[1]-a[1],cx=c[0]-a[0],cy=c[1]-a[1];
-    const px=point.x-a[0],py=point.y-a[1],det=bx*cy-by*cx;
-    const u=(px*cy-py*cx)/det,v=(bx*py-by*px)/det;
-    if(u>=-.00001&&v>=-.00001&&u+v<=1.00001)return {i,u,v};
+function harborGround(x,y){
+  if(HARBOR.piers.some(poly=>harborInside(x,y,poly)))return "pier";
+  if(HARBOR.obstacles.some(poly=>harborInside(x,y,poly)))return "";
+  if(HARBOR.land.some(poly=>harborInside(x,y,poly)))return "land";
+  return "";
+}
+function harborRoute(from,to){
+  const clear=(a,b)=>{
+    const steps=Math.ceil(Math.hypot(b.x-a.x,b.y-a.y)/3);
+    for(let i=1;i<=steps;i++)if(!harborGround(a.x+(b.x-a.x)*i/steps,a.y+(b.y-a.y)*i/steps))return false;
+    return true;
+  };
+  if(clear(from,to))return [to];
+  const size=8, id=p=>Math.round(p.y/size)*256+Math.round(p.x/size);
+  const cells=new Map(),open=[],closed=new Set();
+  const root={x:from.x,y:from.y,g:0,f:0,parent:null};
+  open.push(root);cells.set(id(root),root);
+  while(open.length&&closed.size<5000){
+    let best=0;for(let i=1;i<open.length;i++)if(open[i].f<open[best].f)best=i;
+    const cur=open.splice(best,1)[0];if(closed.has(id(cur)))continue;closed.add(id(cur));
+    if(Math.hypot(cur.x-to.x,cur.y-to.y)<size*3&&clear(cur,to)){
+      const route=[to];for(let p=cur;p.parent;p=p.parent)route.unshift({x:p.x,y:p.y});return route;
+    }
+    for(const [dx,dy] of [[0,1],[1,0],[0,-1],[-1,0],[1,1],[1,-1],[-1,1],[-1,-1]]){
+      const p={x:cur.x+dx*size,y:cur.y+dy*size},key=id(p),g=cur.g+Math.hypot(dx,dy)*size;
+      if(closed.has(key)||(cells.get(key)?.g??Infinity)<=g||!clear(cur,p))continue;
+      Object.assign(p,{g,f:g+Math.hypot(p.x-to.x,p.y-to.y),parent:cur});cells.set(key,p);open.push(p);
+    }
   }
-  return null;
-}
-function otherBeachView(point,from,to) {
-  if(from===to)return point;
-  const hit=beachTriangleAt(point,from);
-  if(!hit)return {x:to.spawn[0],y:to.spawn[1]};
-  const [a,b,c]=to.triangles[hit.i];
-  return {x:a[0]+hit.u*(b[0]-a[0])+hit.v*(c[0]-a[0]),y:a[1]+hit.u*(b[1]-a[1])+hit.v*(c[1]-a[1])};
+  return [];
 }
