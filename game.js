@@ -31,7 +31,7 @@
   function persist(modified=false){if(modified)dirty=true;if(world)s.pos=world.position();write(saveKey(),{state:s,rev,dirty,pending})}
   function hud(){
     $("#money").textContent=s.money.toLocaleString("ko");$("#capacity").textContent=s.bag.length+" / "+capacity(s);
-    $("#playerName").textContent=auth?.name||"게스트";
+    $("#playerName").textContent=auth?.name||"게스트";$("#logbook b").textContent=world?.aboard()?"항해 · 귀항":"항해 일지";
   }
   function notify(t,ms=3000){clearTimeout(toastTimer);$("#notice").hidden=!t;$("#notice").textContent=t;if(t&&ms)toastTimer=setTimeout(()=>$("#notice").hidden=true,ms)}
   const chime=freq=>audio.chime(freq);
@@ -45,7 +45,7 @@
   }
   function landCatch(){
     if(phase!=="bite"||!world.landed()||!world.inWater())return;
-    const c=catchOne(s,power);state("idle");let msg=c.name,first=false;
+    const c=catchOne(s,power,world.shoalHit());state("idle");let msg=c.name,first=false;
     if(c.kind==="장비"){
       if(s.gear[c.name]){s.money+=20;msg+=" · 중복 장비 보상 20코인"}
       else{s.gear[c.name]=1;msg+=" 획득! 인벤토리에서 착용하세요"}
@@ -67,7 +67,7 @@
   }
   function drawMeter(){
     const range=castRange(power),wet=world?.preview(range.meters);
-    $("#aimSurface").textContent=wet?"바다":"육지";$("#castAim").classList.toggle("dry",!wet);
+    $("#aimSurface").textContent=wet;$("#castAim").classList.toggle("dry",wet==="육지");$("#castAim").classList.toggle("gold",wet==="황금 어군");
     $("#powerText").textContent=range.percent+"%";$("#meterDistance").textContent=range.meters.toFixed(1)+" m";
     const f=range.percent/100,x=25+250*f,y=64-144*f*(1-f);
     $("#arcNeedle").setAttribute("transform","translate("+x+" "+y+") rotate("+Math.atan2(144*f-72,125)*180/Math.PI+")");
@@ -104,12 +104,12 @@
     const ledger=body.querySelector(".shop-ledger"),sameShop=inShop&&panel.dataset.view===view;
     const scroll=sameShop&&ledger?ledger.scrollTop:0;
     const focused=sameShop&&ledger?.contains(document.activeElement)?document.activeElement.dataset.do:null;
-    const titles={discovery:"NEW!",merchant:"소라 낚시점",trade:"어획물 매입",gear:"내 장비",reset:"진행 상황 초기화",bag:"인벤토리",book:"물고기 도감",shop:"낚시 도구",settings:"설정",device:"조작 기기",account:"진행 상황 저장",help:"낚시하는 법"};$("#panelTitle").textContent=titles[view]||"해변";let html="";panel.classList.toggle("discovery",view==="discovery");panel.classList.toggle("counter",inShop);panel.dataset.view=view;
+    const titles={journal:"항해 일지",found:"부표에서 건진 것",discovery:"NEW!",merchant:"소라 낚시점",trade:"어획물 매입",gear:"내 장비",reset:"진행 상황 초기화",bag:"인벤토리",book:"물고기 도감",shop:"낚시 도구",settings:"설정",device:"조작 기기",account:"진행 상황 저장",help:"낚시하는 법"};$("#panelTitle").textContent=titles[view]||"해변";let html="";panel.classList.toggle("discovery",view==="discovery");panel.classList.toggle("counter",inShop);panel.dataset.view=view;
     $("#shopWallet").hidden=!inShop;
     if(inShop){$("#shopWallet").textContent=s.money.toLocaleString();$("#shopWallet").setAttribute("aria-label","보유 "+s.money+" 코인")}
     const exit=$("#closePanel");exit.textContent="×";exit.setAttribute("aria-label",inShop?"가게에서 나가기":"닫기");
     if(inShop)exit.dataset.do="close";else delete exit.dataset.do;
-    const badges={bag:"bucket",book:"book",gear:"rod",settings:"settings",account:"user",device:"device",help:"book",reset:"settings",merchant:"shop",shop:"rod",trade:"coin"};
+    const badges={journal:"book",found:"charm",bag:"bucket",book:"book",gear:"rod",settings:"settings",account:"user",device:"device",help:"book",reset:"settings",merchant:"shop",shop:"rod",trade:"coin"};
     $("#panelBadge").innerHTML=view==="discovery"?"":art(badges[view]);
     if(view==="discovery"&&discovery){
       html='<div class="trophy-art">'+fishArt(discovery.name)+'</div>'+
@@ -117,11 +117,20 @@
         '<span class="discovery-grade">'+GRADES[discovery.grade]+' · 도감 등록</span></div>'+
         '<div class="trophy-actions">'+button("도감 보기","discoverBook")+button("확인","close")+'</div>';
     }
+    if(view==="journal"||view==="found"){
+      const aboard=!!world?.aboard(),entry=voyageEntry(s,aboard);
+      const number=!canSail(s)?1:Math.min(4,2+s.voyage);
+      html='<section class="voyage-page">'+routeChart(s,aboard?world.position():null)+'<small>별등대 항해록 · '+number+'장</small><h3>'+safe(view==="found"?SEA_MARKS[s.voyage-1]?.find||entry[0]:entry[0])+'</h3><p>'+safe(view==="found"?SEA_MARKS[s.voyage-1]?.line||entry[1]:entry[1])+'</p><strong>'+safe(entry[2])+'</strong>';
+      if(aboard&&s.voyage<2)html+='<p>조이스틱이나 방향키로 부표까지 배를 모세요. 가까이에서 조사할 수 있어요.</p>';
+      if(aboard)html+=primary("항구로 귀항","return");
+      else if(canSail(s))html+=primary("소라 낚시점으로 걷기","visit");
+      html+='<aside><b>황금 어군</b> 금빛 원 안에 찌가 떨어지면 스페셜 확률이 2%에서 8%로 올라가요. 어군은 잠시 머물다가 자리를 옮겨요.</aside></section>';
+    }
     if(view==="merchant"){
-      html=counterHead()+speech(s.bag.length?"어서 오게. 오늘은 어떤 녀석들이 물었나?":"어서 오게! 바다에 나갈 채비는 됐나?")+
+      html=counterHead()+speech(s.voyage===3?"별등대를 보게. 자네가 가져온 빛 덕에 모두가 길을 찾게 됐어.":s.voyage===2?"그 푸른빛은… 선장이 남긴 별유리로구먼!":canSail(s)?"돛줄을 풀어 놨네. 종소리를 따라가 보게.":s.bag.length?"통을 보여주게. 세 마리를 낚고 낚싯대를 손보면 내 배를 빌려주지.":"등대가 꺼진 지 오래야. 먼저 해변에서 세 마리를 낚아 보게.")+
         '<section class="shop-ledger"><h3 class="sr-only">거래 선택</h3><div class="counter-options">'+
         shopChoice("coin","어획물 팔기","open:trade",s.bag.length+"칸 보관 · "+totalSale().toLocaleString()+"코인")+
-        shopChoice("rod","도구 구매·강화","open:shop",RODS[s.rod-1]+" · "+s.rod+"단계")+'</div></section>';
+        shopChoice("rod","도구 구매·강화","open:shop",RODS[s.rod-1]+" · "+s.rod+"단계")+(canSail(s)?'<button class="sailing-choice" data-do="'+(s.voyage===2?'deliver':'depart')+'">'+(s.voyage===2?'별유리 렌즈 건네기 · 120코인':'⚓  소라호로 출항')+'</button>':'')+'</div></section>';
     }
     if(view==="trade"){
       html=counterHead()+speech(s.bag.length?"통을 보여주게. 전부 합해서 "+totalSale().toLocaleString()+"코인에 사겠네.":modalError||"통이 비어 있구먼. 한 마리만 낚아 와도 매입하네.")+
@@ -140,7 +149,7 @@
       const cards=CATCHES.filter(f=>f[1]===bookGrade).map(([n,g,price])=>{
         const known=!!s.seen[n];return '<div class="specimen">'+fishArt(n,!known)+'<b>'+safe(known?n:"미발견")+'</b><small>'+(known?s.seen[n]+"마리 · "+price+"코인":GRADES[g])+'</small></div>';
       }).join("");
-      html=inventoryTabs()+'<p>발견 '+Object.keys(s.seen).length+' / '+CATCHES.length+'종</p><div class="choices">'+GRADES.map((g,i)=>selected(g,"grade:"+i,i===bookGrade)).join("")+'</div><p>'+(bookGrade===5?"모든 낚싯대에서 매번 2% 확률로 등장해요.":(bookGrade+1)+"단계 낚싯대부터 만날 수 있어요.")+'</p><div class="collection">'+cards+'</div>';
+      html=inventoryTabs()+'<p>발견 '+Object.keys(s.seen).length+' / '+CATCHES.length+'종</p><div class="choices">'+GRADES.map((g,i)=>selected(g,"grade:"+i,i===bookGrade)).join("")+'</div><p>'+(bookGrade===5?"모든 낚싯대에서 기본 2%, 황금 어군에서는 8%예요.":(bookGrade+1)+"단계 낚싯대부터 만날 수 있어요.")+'</p><div class="collection">'+cards+'</div>';
     }
     if(view==="shop"){html=counterHead()+speech('낚싯대를 보여주게. 자네 손에 꼭 맞게 손봐 주지.')+'<section class="shop-ledger"><button class="counter-back" data-do="open:merchant">‹ 상인과 대화</button><h3>도구 구매·강화</h3><div class="counter-stock">';for(const kind of ["rod","bucket"]){const lv=s[kind],price=upgradeCost(lv,kind),isRod=kind==="rod";html+=row(isRod?"rod":"bucket",isRod?RODS[lv-1]:"물고기통 "+lv+"단계",lv>=6?"최고 단계":isRod?(lv===5?"다음 단계에서 전설 어종 확률 증가":"다음 단계에서 "+GRADES[lv]+" 물고기 해금"):"다음 단계 용량 "+(capacity(s)+2)+"칸",lv<6?button(price+"코인 강화","up:"+kind,s.money<price):"")}
       for(const [name,item] of Object.entries(GEAR)){const lv=s.gear[name]||0,price=lv?upgradeCost(lv,"gear"):item.cost;html+=row(gearArt(name),name+(lv?" · "+lv+"단계":""),item.desc,lv?'<small>보유 중</small>':item.cost?button(price+"코인 구매","buy:"+name,s.money<price):'<small>낚시 전용</small>');if(lv&&lv<5)html+='<div class="row gear-up"><span>'+safe(name)+' 강화</span>'+button(price+"코인","gear:"+name,s.money<price)+'</div>'}html+='</div></section>'}
@@ -157,6 +166,10 @@
   function change(){hud();persist(true);scheduleSave();render();chime(570)}
   async function action(a){const [key,arg]=a.split(":");if(key==="open")return open(arg);
     if(key==="close"){panel.close();return}
+    if(key==="visit"&&view==="journal"&&!world?.aboard()){panel.addEventListener("close",()=>world.walkToShop(),{once:true});panel.close();return}
+    if(key==="depart"&&inShop&&view==="merchant"&&canSail(s)){inShop=false;panel.close();world.depart();hud();persist(true);scheduleSave();notify("소라호 출항! 방향키나 조이스틱으로 배를 몰아 보세요.",4200);return}
+    if(key==="return"&&world?.aboard()){panel.close();world.returnHome();hud();persist(true);scheduleSave();notify("소라 낚시점 앞에 정박했어요.");return}
+    if(key==="deliver"&&inShop&&view==="merchant"&&s.voyage===2){s.voyage=3;s.money+=120;hud();persist(true);scheduleSave();chime(880);open("merchant");notify("별등대에 다시 불이 켜졌어요. 120코인 획득!",4300);return}
     if(key==="discoverBook"){bookGrade=discovery.grade;open("book");return}
     if(key==="grade"){bookGrade=Number(arg);render();return}
     if(key==="fullscreen"){fullscreen(true);panel.close();return}
@@ -164,7 +177,7 @@
       if(busy||syncing){modalError="저장 처리 중이에요. 잠시 뒤 다시 눌러 주세요.";render();return}
       if(auth&&(!ready||pending)){await resume(false);if(ready&&pending)await sync();
         if(!ready||pending){modalError="시트 연결을 확인한 뒤 초기화해 주세요.";render();return}}
-      clearTimeout(saveTimer);const visits=s.visits;s={...newGame(),visits};discovery=null;timeFraction=0;world?.restore(s.pos);
+      clearTimeout(saveTimer);const visits=s.visits;s={...newGame(),visits};discovery=null;timeFraction=0;world?.restore(s.pos,canSail(s));
       hud();persist(true);if(auth)await sync();open("settings");
       modalError=auth&&dirty?"기기에서 초기화했어요. 시트 저장 대기 중입니다.":"진행 상황을 초기화했어요.";render();return;
     }if(key==="mode"){mode=arg;modalError="";render();return}
@@ -177,19 +190,19 @@
     if(key==="device"){prefs.device=arg;write("설정",prefs);deviceUI();fullTried=false;fullscreen();panel.close();notify(arg+" 조작으로 설정했어요");return}
     if(key==="sync"){await resume(false);if(ready)await sync();if(panel.open&&view==="account")render()}
     if(key==="reload"){await resume(true);if(panel.open)render()}
-    if(key==="logout"&&!busy&&!syncing){persist();auth=null;write("계정",null);const guest=read(saveKey(),null);s={...newGame(),...guest?.state};s.visits++;rev=0;pending=null;dirty=false;ready=false;world?.restore(s.pos);hud();status="이 기기에 저장";render()}}
+    if(key==="logout"&&!busy&&!syncing){persist();auth=null;write("계정",null);const guest=read(saveKey(),null);s={...newGame(),...guest?.state};s.visits++;rev=0;pending=null;dirty=false;ready=false;world?.restore(s.pos,canSail(s));hud();status="이 기기에 저장";render()}}
   async function request(command,args){const abort=new AbortController(),timer=setTimeout(()=>abort.abort(),16500);try{const res=await fetch(api,{method:"POST",body:JSON.stringify({command,...args}),signal:abort.signal,redirect:"follow",credentials:"omit"});const data=await res.json();if(!data.ok)throw Object.assign(new Error(data.message||"저장에 실패했어요"),{code:data.code});return data}catch(e){if(e.code)throw e;throw new Error("저장 서버에 연결할 수 없어요. 기기에 진행 상황을 보관했어요.")}finally{clearTimeout(timer)}}
   async function authenticate(e){e.preventDefault();if(busy||auth)return;const f=new FormData(e.target),name=String(f.get("name")).normalize("NFC"),pin=String(f.get("pin"));if(!/^[가-힣]{2,13}$/.test(name)||!/^\d{4}$/.test(pin))return;busy=true;const submit=e.target.querySelector("button");submit.disabled=true;submit.textContent="연결 중…";persist();
     try{const r=await request(mode==="login"?"로그인":"가입",{name,pin,state:s,device:device(),visit:pageVisit});const old=read("회원."+name,null);auth={name,token:r.token};write("계정",auth);s={...newGame(),...r.state};rev=r.rev;dirty=false;pending=null;ready=true;status="시트에 저장됨";
       if(old?.dirty&&mode==="login"){s={...newGame(),...old.state,visits:r.state.visits};dirty=true;rev=old.rev;pending=old.pending||null;if(rev!==r.rev&&!pending){ready=false;status="저장 충돌 · 시트 기록 확인 필요"}}
-      world?.restore(s.pos);persist();hud();if(ready&&dirty)scheduleSave();modalError=mode==="register"?"회원가입했어요":"로그인했어요";render()}catch(err){modalError=err.message;$("#feedback").textContent=modalError;submit.disabled=false;submit.textContent=mode==="login"?"로그인":"회원가입하고 저장"}finally{busy=false}}
-  async function resume(reload){if(!auth||busy||syncing)return;busy=true;const who=auth;try{const r=await request("접속",{...who,visit:pageVisit,device:device()});if(auth!==who)return;if(reload||(!dirty&&!pending)){s={...newGame(),...r.state};rev=r.rev;dirty=false;pending=null;world?.restore(s.pos)}s.visits=r.state.visits;
+      world?.restore(s.pos,canSail(s));persist();hud();if(ready&&dirty)scheduleSave();modalError=mode==="register"?"회원가입했어요":"로그인했어요";render()}catch(err){modalError=err.message;$("#feedback").textContent=modalError;submit.disabled=false;submit.textContent=mode==="login"?"로그인":"회원가입하고 저장"}finally{busy=false}}
+  async function resume(reload){if(!auth||busy||syncing)return;busy=true;const who=auth;try{const r=await request("접속",{...who,visit:pageVisit,device:device()});if(auth!==who)return;if(reload||(!dirty&&!pending)){s={...newGame(),...r.state};rev=r.rev;dirty=false;pending=null;world?.restore(s.pos,canSail(s))}s.visits=r.state.visits;
       if(rev!==r.rev&&!pending){ready=false;status="저장 충돌 · 시트 기록 확인 필요"}else{ready=true;status=dirty?"저장 대기":"시트에 저장됨"}persist();hud()}catch(e){ready=false;status=e.message}finally{busy=false}}
   let saveTimer;function scheduleSave(){if(!auth)return;clearTimeout(saveTimer);saveTimer=setTimeout(sync,1200)}
   async function sync(){if(!auth||!ready||busy||syncing||(!dirty&&!pending))return;syncing=true;const who=auth;persist();if(!pending){pending={state:JSON.parse(JSON.stringify(s)),rev,writeId:id()};persist()}
     try{const r=await request("저장",{...who,...pending});if(who!==auth)return;dirty=JSON.stringify(s)!==JSON.stringify(pending.state);pending=null;rev=r.rev;status="시트에 저장됨";persist()}catch(e){status=e.code==="충돌"?"저장 충돌 · 시트 기록 확인 필요":e.message;if(e.code==="충돌"){ready=false;pending=null}persist()}finally{syncing=false;if(panel.open&&view==="account")render()}}
   document.querySelectorAll("[data-icon]").forEach(el=>el.innerHTML=["pack","settings"].includes(el.dataset.icon)?art(el.dataset.icon):icon(el.dataset.icon));deviceUI();hud();
-  try{world=beachWorld($("#world"),frame,enterShop,wet=>{$("#cast b").textContent=wet?"줄 회수":"회수 중";if(wet)audio.castSound(true);else notify("찌가 땅에 닿았어요. 바다를 눌러 방향을 잡아 보세요.",2600)});world.restore(s.pos)}catch(err){console.error(err);$("#hint").textContent="브라우저에서 WebGL을 켜고 다시 열어 주세요";$("#cast").disabled=true;notify("3D 화면을 열 수 없어요. 브라우저의 그래픽 가속 설정을 확인해 주세요.",0)}
+  try{world=beachWorld($("#world"),frame,enterShop,wet=>{$("#cast b").textContent=wet?"줄 회수":"회수 중";if(wet){audio.castSound(true);if(world?.shoalHit())notify("황금 어군 명중! 스페셜 확률 8%",2400)}else notify("찌가 땅에 닿았어요. 바다를 눌러 방향을 잡아 보세요.",2600)},{mobile:autoDevice()==="모바일"||navigator.deviceMemory<=2,chapter:()=>s.voyage});world.restore(s.pos,canSail(s));hud()}catch(err){console.error(err);$("#hint").textContent="브라우저에서 WebGL을 켜고 다시 열어 주세요";$("#cast").disabled=true;notify("3D 화면을 열 수 없어요. 브라우저의 그래픽 가속 설정을 확인해 주세요.",0)}
   // A fish can be hooked on pointerdown or keydown. Its release belongs to the beach.
   document.addEventListener("pointerdown",e=>{
     if(panel.open&&view==="discovery")discoveryPress={id:e.pointerId,button:e.target.closest("button")};
@@ -207,7 +220,12 @@
     if(e.key===" "&&discoveryKeyHeld){discoveryKeyHeld=false;e.preventDefault();e.stopImmediatePropagation()}
   },true);
   document.addEventListener("click",e=>{const b=e.target.closest("[data-open],[data-do]");if(!b)return;if(b.dataset.open)open(b.dataset.open);else action(b.dataset.do)});
-  document.addEventListener("submit",e=>{if(e.target.id==="loginForm")authenticate(e)});$("#closePanel").onclick=()=>panel.close();panel.onclick=e=>{if(view==="discovery")return;if(e.target===panel){const r=panel.getBoundingClientRect();if(e.clientX<r.left||e.clientY<r.top||e.clientX>r.right||e.clientY>r.bottom)panel.close()}};panel.onclose=()=>{if(panel.open)return;if(inShop){world?.leaveShop();inShop=false;persist()}view="";world?.lock(false);$("#world").focus({preventScroll:true})};$("#interact").onclick=enterShop;
+  document.addEventListener("submit",e=>{if(e.target.id==="loginForm")authenticate(e)});$("#closePanel").onclick=()=>panel.close();panel.onclick=e=>{if(view==="discovery")return;if(e.target===panel){const r=panel.getBoundingClientRect();if(e.clientX<r.left||e.clientY<r.top||e.clientX>r.right||e.clientY>r.bottom)panel.close()}};panel.onclose=()=>{if(panel.open)return;if(inShop){world?.leaveShop();inShop=false;persist()}view="";world?.lock(false);$("#world").focus({preventScroll:true})};function interactNearby(){
+    if(panel.open||phase!=="idle")return;
+    if(world?.atBuoy()&&s.voyage<2){s.voyage++;persist(true);scheduleSave();chime(820);open("found");return}
+    enterShop();
+  }
+  $("#interact").onclick=interactNearby;
   body.addEventListener("input",e=>{const key=e.target.dataset.volume;if(key!=="music"&&key!=="effects")return;
     prefs[key]=Number(e.target.value);audio.start();audio.volumes();write("설정",prefs);$("#vol-"+key).textContent=prefs[key]+"%"});
   body.addEventListener("change",e=>{if(e.target.dataset.volume==="effects")chime(660)});
@@ -234,7 +252,7 @@
   const movementKeys={KeyW:"w",KeyA:"a",KeyS:"s",KeyD:"d",ArrowUp:"arrowup",ArrowLeft:"arrowleft",ArrowDown:"arrowdown",ArrowRight:"arrowright"};
   window.addEventListener("keydown",e=>{
     if(panel.open||!world||e.ctrlKey||e.metaKey||e.altKey)return;
-    if(e.code==="KeyE"||e.key.toLowerCase()==="e"){if(!e.repeat)enterShop();return}
+    if(e.code==="KeyE"||e.key.toLowerCase()==="e"){if(!e.repeat)interactNearby();return}
     if(e.code==="Space"||e.key===" "){
       if(e.target.closest?.("button")&&e.target!==cast)return;
       e.preventDefault();if(!e.repeat){discoveryKeyHeld=phase==="bite";startCast("keyboard");if(view!=="discovery")discoveryKeyHeld=false}

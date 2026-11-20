@@ -29,18 +29,20 @@ function castRange(charge, bonusRoll=1, strengthRoll=0) {
 }
 const THINGS=[["빈 깡통",0],["구멍 난 장화",0],["빛바랜 유리병",8],["진주 조개",64],["금빛 나침반",125]];
 const GEAR={"반짝이 루어":{cost:75,desc:"높은 등급의 물고기가 물 확률이 올라가요."},"조개 방울":{cost:90,desc:"찌를 문 물고기가 더 오래 기다려요."},"달조각 부적":{cost:0,desc:"건져서 얻는 장비예요. 어획물 판매 가격이 올라가요."}};
-const newGame=()=>({money:0,rod:1,bucket:1,bag:[],gear:{},seen:{},caught:0,seconds:0,visits:0,pos:[3.05,1.65],equipped:""});
+const newGame=()=>({money:0,rod:1,bucket:1,bag:[],gear:{},seen:{},caught:0,seconds:0,visits:0,pos:[3.05,1.65],equipped:"",voyage:0});
 const capacity=s=>4+s.bucket*2;
 const itemValue=n=>CATCHES.find(v=>v[0]===n)?.[2]??THINGS.find(v=>v[0]===n)?.[1]??0;
 const sellValue=(s,n)=>Math.round(itemValue(n)*(1+(s.equipped==="달조각 부적"?.12*(s.gear[s.equipped]||0):0)));
 const upgradeCost=(level,kind)=>Math.round((kind==="rod"?60:kind==="bucket"?45:40)*Math.pow(1.8,level-1));
-function catchOne(s,power){
+function catchOne(s,power,shoal=false){
   const roll=Math.random();
-  if(roll<SPECIAL_CHANCE){const fish=CATCHES.filter(entry=>entry[1]===5);return {name:fish[Math.floor(Math.random()*fish.length)][0],kind:"물고기",grade:5}}
-  if(roll<SPECIAL_CHANCE+.047){const name=Object.keys(GEAR)[Math.floor(Math.random()*3)];return {name,kind:"장비"}}
-  if(roll<.20){const pick=THINGS[Math.floor(Math.random()*THINGS.length)];return {name:pick[0],kind:pick[1]?"발견물":"쓰레기"}}
+  const specialChance=shoal?SPECIAL_CHANCE*4:SPECIAL_CHANCE;
+  if(roll<specialChance){const fish=CATCHES.filter(entry=>entry[1]===5);return {name:fish[Math.floor(Math.random()*fish.length)][0],kind:"물고기",grade:5}}
+  if(roll<specialChance+.047){const name=Object.keys(GEAR)[Math.floor(Math.random()*3)];return {name,kind:"장비"}}
+  if(roll<(shoal?.15:.20)){const pick=THINGS[Math.floor(Math.random()*THINGS.length)];return {name:pick[0],kind:pick[1]?"발견물":"쓰레기"}}
   const luck=(s.equipped==="반짝이 루어"?(s.gear[s.equipped]||0)*.055:0)+power*.16;
   const weights=[1,.54+luck,.28+luck*.65,.14+luck*.4,(s.rod===6?.145:.085)+luck*.2].slice(0,Math.min(5,s.rod));
+  if(shoal)weights.forEach((_,grade)=>weights[grade]*=1+grade*.65);
   let r=Math.random()*weights.reduce((a,b)=>a+b,0),grade=0;while(grade<weights.length-1&&r>=weights[grade])r-=weights[grade++];
   const pool=CATCHES.filter(a=>a[1]===grade);return {kind:"물고기",name:pool[Math.floor(Math.random()*pool.length)][0],grade};
 }

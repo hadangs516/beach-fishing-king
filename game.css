@@ -1,6 +1,6 @@
 :root{--ink:#293e3e;--muted:#63726a;--green:#256656;--paper:#fff8e6;--edge:#d7bf92;--gold:#ffc858;color:var(--ink);font:16px/1.4 "Malgun Gothic","Apple SD Gothic Neo",system-ui,sans-serif}
 *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#286e72}body{height:100dvh}button,input{font:inherit}button{color:inherit;cursor:pointer;font-weight:800;border:0;background:none;padding:0;-webkit-tap-highlight-color:transparent}button:hover{filter:brightness(1.045)}button:active{translate:0 1px}button:focus-visible,input:focus-visible{outline:3px solid #ec9a24;outline-offset:3px}button:disabled{opacity:.55;cursor:default}button,i{display:inline-flex;align-items:center;justify-content:center}i{font-style:normal}svg{width:1.35em;height:1.35em;display:block}[hidden]{display:none!important}
-#scene{position:relative;width:100%;height:100%;isolation:isolate;overflow:hidden;--insetX:max(16px,env(safe-area-inset-left));--insetR:max(16px,env(safe-area-inset-right));--insetT:max(14px,env(safe-area-inset-top));--insetB:max(16px,env(safe-area-inset-bottom));background:#57bfc4 url("assets/cove-wide.webp") center 50%/cover no-repeat}
+#scene{position:relative;width:100%;height:100%;isolation:isolate;overflow:hidden;--insetX:max(16px,env(safe-area-inset-left));--insetR:max(16px,env(safe-area-inset-right));--insetT:max(14px,env(safe-area-inset-top));--insetB:max(16px,env(safe-area-inset-bottom));background:#45a5ad}
 #world,#coast{position:absolute;inset:0;width:100%;height:100%;display:block}#world{touch-action:none}#coast{pointer-events:none}
 .profile-area,.top-tools,.action-pad,.pc-help,.stick,.snack,#meter,#notice{position:absolute}
 .profile-area{left:var(--insetX);top:var(--insetT);display:grid;justify-items:start;gap:7px}.profile,.wallet,.round,.pack,.interact,#cast,.pc-help,.place,.stick{box-shadow:0 2px 1px #563e2a50,0 4px 14px #293b3d25}
@@ -57,14 +57,14 @@ dialog.discovery{
 .trophy-actions{position:absolute;top:77%;left:18%;right:18%;height:12%;display:flex;gap:7px;align-items:stretch}
 .trophy-actions button{flex:1;border-radius:30px;border:1.5px solid #b48a4e;background:linear-gradient(#fff9e3,#e9c98e);box-shadow:inset 0 1px 1px #fff8,0 2px 0 #a17d50;font-size:clamp(11px,3.3cqw,15px);color:#684529}
 .trophy-actions [data-do=close]{background:linear-gradient(#b5d877,#79a64a);border-color:#71903d;color:#2d4e2b}
-@media(max-aspect-ratio:92/100){#scene{background-image:url("assets/cove-tall.webp")}}
+
 @media(max-width:600px){#cast{width:86px;height:86px}.round{width:40px;height:40px}.profile-name strong{font-size:14px}}
 @media(orientation:landscape) and (max-height:500px){.discovery .close{width:22px;height:22px}.specimen .fish-plate{height:48px}}
 @media(prefers-reduced-motion:no-preference){.discovery[open] .trophy-art{animation:show-catch .38s cubic-bezier(.18,.86,.31,1.22)}@keyframes show-catch{from{transform:translateY(6%) scale(.8);opacity:.3}to{transform:none;opacity:1}}}
 
 
 /* The fishing kit and shop share brass fittings, ink-blue linen and paper labels. */
-#scene{background:#3c988e url("assets/harbor-hd.webp") center/cover no-repeat}
+#scene{background:#45a5ad}
 .painted{display:inline-block;flex:none;width:46px;height:46px;background-image:url("assets/harbor-tools.webp");background-size:400% 300%;background-position:calc(var(--ix)*100%/3) calc(var(--iy)*50%);background-repeat:no-repeat}
 .pack .painted{width:40px;height:34px}.gear .painted{width:31px;height:31px}
 #doorSign,#flightMark{position:absolute;z-index:1;transform:translate(-50%,-100%);white-space:nowrap;font-weight:850}
