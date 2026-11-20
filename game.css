@@ -1,6 +1,6 @@
 :root{--ink:#293e3e;--muted:#63726a;--green:#256656;--paper:#fff8e6;--edge:#d7bf92;--gold:#ffc858;color:var(--ink);font:16px/1.4 "Malgun Gothic","Apple SD Gothic Neo",system-ui,sans-serif}
 *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#286e72}body{height:100dvh}button,input{font:inherit}button{color:inherit;cursor:pointer;font-weight:800;border:0;background:none;padding:0;-webkit-tap-highlight-color:transparent}button:hover{filter:brightness(1.045)}button:active{translate:0 1px}button:focus-visible,input:focus-visible{outline:3px solid #ec9a24;outline-offset:3px}button:disabled{opacity:.55;cursor:default}button,i{display:inline-flex;align-items:center;justify-content:center}i{font-style:normal}svg{width:1.35em;height:1.35em;display:block}[hidden]{display:none!important}
-#scene{position:relative;width:100%;height:100%;isolation:isolate;overflow:hidden;--insetX:max(16px,env(safe-area-inset-left));--insetR:max(16px,env(safe-area-inset-right));--insetT:max(14px,env(safe-area-inset-top));--insetB:max(16px,env(safe-area-inset-bottom));background:#57bfc4 url("assets/sorabit-cove.webp") center 50%/cover no-repeat}
+#scene{position:relative;width:100%;height:100%;isolation:isolate;overflow:hidden;--insetX:max(16px,env(safe-area-inset-left));--insetR:max(16px,env(safe-area-inset-right));--insetT:max(14px,env(safe-area-inset-top));--insetB:max(16px,env(safe-area-inset-bottom));background:#57bfc4 url("assets/cove-wide.webp") center 50%/cover no-repeat}
 #world,#coast{position:absolute;inset:0;width:100%;height:100%;display:block}#world{touch-action:none}#coast{pointer-events:none}
 .profile-area,.top-tools,.action-pad,.pc-help,.stick,.snack,#meter,#notice{position:absolute}
 .profile-area{left:var(--insetX);top:var(--insetT);display:grid;justify-items:start;gap:7px}.profile,.wallet,.round,.pack,.interact,#cast,.pc-help,.place,.stick{box-shadow:0 2px 1px #563e2a50,0 4px 14px #293b3d25}
@@ -21,4 +21,44 @@ dialog{width:min(470px,calc(100vw - 24px));max-height:calc(100dvh - 28px);color:
 @media(max-width:600px){#scene{--insetX:max(10px,env(safe-area-inset-left));--insetR:max(10px,env(safe-area-inset-right));--insetT:max(10px,env(safe-area-inset-top));--insetB:max(15px,env(safe-area-inset-bottom))}.profile{min-height:42px;padding-right:11px}.float-mark{width:33px;height:33px}.profile-name strong{font-size:14px}.wallet{min-width:60px}.pack{width:55px}.stick{width:79px;height:79px}#cast{width:82px;height:82px}#cast i svg{width:32px;height:32px}.action-pad{gap:8px}.snack{bottom:calc(var(--insetB) + 108px);font-size:11px;padding:5px 8px;max-width:calc(100% - 120px);gap:4px}.snack i{display:none}#meter{width:calc(100% - 206px);max-width:205px;min-width:95px;bottom:calc(var(--insetB) + 12px)}#notice{bottom:calc(var(--insetB) + 150px);max-width:86%}}
 @media(orientation:landscape) and (max-height:500px){#scene{--insetB:max(8px,env(safe-area-inset-bottom));--insetT:max(6px,env(safe-area-inset-top))}.profile{min-height:34px}.float-mark{width:28px;height:28px}.profile-name strong{font-size:12px}.profile-area,.top-tools{gap:4px}.pack{width:46px}.pack i svg{width:21px;height:21px}.pack span,.pack small{font-size:9px}.stick{width:65px;height:65px}#cast{width:68px;height:68px}#cast i svg{width:26px;height:26px}#cast b{font-size:10px}.action-pad{gap:5px}.round{width:31px;height:31px}.snack{bottom:var(--insetB)}.discovery .trophy-art .fish-plate{height:90px}dialog{max-height:calc(100dvh - 12px)}}
 @media(prefers-reduced-motion:reduce){.biting #cast{animation:none}}
+
+
+/* Interface finishes are shared by the field guide, shop and shoreline controls. */
+#avatar{width:100%;height:100%;object-fit:contain;transform:scale(1.12)}
+.float-mark{overflow:hidden;background:radial-gradient(at 43% 32%,#e5f4dc,#91c3be 58%,#407c89);box-shadow:inset 0 0 0 1px #fff6ca}
+.profile,.wallet,.gear,.pack{background:linear-gradient(160deg,#385967f5,#203b4dee 74%);border-color:#ffe9ae;box-shadow:inset 0 1px 1px #fff4,0 2px 1px #51453383,0 4px 12px #263b4733}
+.profile{padding:3px 15px 3px 3px;gap:7px}.profile-name strong{text-shadow:0 1px 1px #182f40}.profile-name small{color:#f3d79a}
+.place{background:#29494fc7}.pack{border-radius:16px 16px 14px 14px}.pack small{letter-spacing:.03em}
+#cast{background:radial-gradient(at 34% 20%,#729cb1,#496d88 43%,#29475f 88%);box-shadow:inset 0 0 0 3px #375c70,inset 0 0 0 4.5px #bbd4c6,0 3px 0 #544e42,0 4px 14px #26475255}
+#cast i{filter:drop-shadow(0 1px 1px #273947)}#cast b{color:#fff8de;text-shadow:0 1px 2px #172d3b}
+.charging #cast{background:radial-gradient(at 35% 20%,#a59b5b,#696330)}.biting #cast{background:radial-gradient(at 35% 20%,#f1a34e,#a75b35)}
+.stick{background:radial-gradient(at 45% 35%,#426f7d77,#2548528f);box-shadow:inset 0 0 0 2px #a7c2b838,0 2px 4px #263d4854}
+.stick span{background:radial-gradient(at 40% 25%,#fffff1,#eee5d1 65%,#b7baaa)}
+.track{position:relative;height:12px}.track:after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(to right,transparent 0 calc(10% - 1px),#ffedb966 calc(10% - 1px) 10%);pointer-events:none}
+dialog:not(.discovery) .dialog-head{background:linear-gradient(#84603f,#64472f);border-bottom:3px solid #c89d5e;color:#fff3d0;text-shadow:0 1px #473222}
+dialog:not(.discovery) .close{background:#f5dfb5;border:2px solid #b89764;color:#634530}
+.choice.selected,.action{background:linear-gradient(#5a9072,#3e715c);box-shadow:inset 0 1px #a8c6a7}
+.specimen{border-radius:10px;background:radial-gradient(at 48% 35%,#fffdf1,#f7ead2);box-shadow:inset 0 0 0 2px #fff8df}.specimen .fish-plate{height:65px}
+.undiscovered{filter:brightness(0) saturate(0);opacity:.28}
+dialog.discovery{
+  width:min(460px,calc(100vw - 16px),calc((100dvh - 18px)*1.22));
+  aspect-ratio:1.22;max-height:none;overflow:visible;padding:0;border:0;border-radius:0;
+  background:transparent url("assets/discovery-frame.webp") center/100% 100% no-repeat;
+  box-shadow:none;filter:drop-shadow(0 9px 9px #4733215c);container-type:inline-size;
+}
+.discovery::backdrop{background:#233f4b50;backdrop-filter:blur(1.6px)}
+.discovery .dialog-head{position:absolute;inset:0;background:none;border:0;display:block;padding:0;pointer-events:none;z-index:2}
+.discovery .dialog-head h2{position:absolute;top:1.7%;left:0;right:0;color:#fff3aa;font:1000 clamp(25px,8cqw,41px)/1.12 system-ui;letter-spacing:-.045em;text-shadow:0 2px 0 #bd6530,0 3px 0 #974124,0 4px 7px #882e19;transform:rotate(-3deg)}
+.discovery .close{pointer-events:auto;position:absolute;top:17%;right:3%;width:26px;height:26px;border:1px solid #cb924b;background:#fff1cd;color:#8e572f;font:800 17px/1 system-ui;box-shadow:0 1px 4px #965f4033}
+.discovery #panelBody{position:absolute;inset:0;padding:0}.discovery .trophy-art{position:absolute;top:19%;left:18%;right:18%;height:40%;background:none;filter:drop-shadow(0 4px 2px #8d62283d)}
+.discovery .trophy-art .fish-plate{width:100%;height:100%}.trophy-caption{position:absolute;top:57%;left:12%;right:12%;text-align:center}
+.discovery h3{display:inline-block;margin:0;padding:1.6% 5%;max-width:100%;border-top:1px solid #d4ab69;border-bottom:1px solid #d4ab69;color:#623b20;background:linear-gradient(90deg,transparent,#f7d792 10%,#ffe7b1 50%,#f7d792 90%,transparent);font-size:clamp(13px,4.3cqw,21px);font-weight:950;line-height:1.15;letter-spacing:-.07em}
+.discovery .discovery-grade{display:table;margin:2% auto 0;color:#fffbe5;background:#477f88;padding:2px 10px;border-radius:10px;font-weight:800;font-size:clamp(9px,2.6cqw,12px);line-height:1.2}
+.trophy-actions{position:absolute;top:77%;left:18%;right:18%;height:12%;display:flex;gap:7px;align-items:stretch}
+.trophy-actions button{flex:1;border-radius:30px;border:1.5px solid #b48a4e;background:linear-gradient(#fff9e3,#e9c98e);box-shadow:inset 0 1px 1px #fff8,0 2px 0 #a17d50;font-size:clamp(11px,3.3cqw,15px);color:#684529}
+.trophy-actions [data-do=close]{background:linear-gradient(#b5d877,#79a64a);border-color:#71903d;color:#2d4e2b}
+@media(max-aspect-ratio:92/100){#scene{background-image:url("assets/cove-tall.webp")}}
+@media(max-width:600px){#cast{width:86px;height:86px}.round{width:40px;height:40px}.profile-name strong{font-size:14px}}
+@media(orientation:landscape) and (max-height:500px){.discovery .close{width:22px;height:22px}.specimen .fish-plate{height:48px}}
+@media(prefers-reduced-motion:no-preference){.discovery[open] .trophy-art{animation:show-catch .38s cubic-bezier(.18,.86,.31,1.22)}@keyframes show-catch{from{transform:translateY(6%) scale(.8);opacity:.3}to{transform:none;opacity:1}}}
 

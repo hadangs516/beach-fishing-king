@@ -80,7 +80,12 @@
   const inventoryTabs=()=>'<div class="choices">'+[["bag","물고기통"],["book","도감"],["shop","장비·상점"]].map(([v,t])=>selected(t,"open:"+v,view===v)).join("")+"</div>";
   const volumeControl=(key,title)=>'<label class="volume">'+title+'<output id="vol-'+key+'">'+prefs[key]+'%</output><input type="range" min="0" max="100" value="'+prefs[key]+'" data-volume="'+key+'" aria-label="'+title+' 음량"></label>';
   function render(){const titles={discovery:"NEW!",interact:"해변에서",reset:"진행 상황 초기화",bag:"인벤토리",book:"물고기 도감",shop:"해변 상점",settings:"설정",device:"조작 기기",account:"진행 상황 저장",help:"낚시하는 법"};$("#panelTitle").textContent=titles[view]||"해변";let html="";panel.classList.toggle("discovery",view==="discovery");
-    if(view==="discovery"&&discovery){html='<div class="trophy-art">'+fishArt(discovery.name)+'</div><p class="discovery-grade">'+GRADES[discovery.grade]+' · 첫 발견</p><h3>'+safe(discovery.name)+'</h3><p>물고기 도감에 등록했어요.</p>'+primary("계속 낚시하기","close")+primary("도감 보기","discoverBook")}
+    if(view==="discovery"&&discovery){
+      html='<div class="trophy-art">'+fishArt(discovery.name)+'</div>'+
+        '<div class="trophy-caption"><h3>'+safe(discovery.name)+'</h3>'+
+        '<span class="discovery-grade">'+GRADES[discovery.grade]+' · 도감 등록</span></div>'+
+        '<div class="trophy-actions">'+button("도감 보기","discoverBook")+button("확인","close")+'</div>';
+    }
     if(view==="interact"){html=row("shop","해변 상점","낚싯대·물고기통 강화와 장비 착용",button("방문","open:shop"))+row("bucket","어획물 판매",s.bag.length+"마리·개 보관 중",button("보기","open:bag"))+row("book","물고기 도감",Object.keys(s.seen).length+" / "+CATCHES.length+"종 발견",button("펼치기","open:book"))}
     if(view==="bag"){const counts={};s.bag.forEach(n=>counts[n]=(counts[n]||0)+1);const sum=s.bag.reduce((a,n)=>a+sellValue(s,n),0);html=inventoryTabs()+'<p>보관 중 <b>'+s.bag.length+' / '+capacity(s)+'</b></p>'+Object.entries(counts).map(([n,v])=>row("fish",n+" × "+v,sellValue(s,n)?sellValue(s,n)+"코인씩":"쓰레기 · 판매할 때 함께 비워요").replace(icon("fish"),CATCHES.some(f=>f[0]===n)?fishArt(n):icon("bucket"))).join("");html+=s.bag.length?primary("모두 판매 · "+sum.toLocaleString()+"코인","sell"):'<p class="empty">물고기통이 비었어요. 첫 낚싯줄을 던져 보세요.</p>'}
     if(view==="book"){
